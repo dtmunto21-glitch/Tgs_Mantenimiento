@@ -10,27 +10,10 @@
         body { 
             background: linear-gradient(rgba(0, 123, 255, 0.7), rgba(40, 167, 69, 0.7)), 
                         url('Logo.png') no-repeat center center fixed;
-            background-size: cover;
-            height: 100vh; 
-            display: flex; 
-            align-items: center; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-size: cover; height: 100vh; display: flex; align-items: center; 
         }
-        .login-card { 
-            border: none; 
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.9);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-        }
-        .logo-img {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 50%;
-            margin-bottom: 15px;
-            border: 3px solid #007bff;
-        }
+        .login-card { border: none; border-radius: 20px; background: rgba(255, 255, 255, 0.9); box-shadow: 0 15px 35px rgba(0,0,0,0.3); }
+        .logo-img { width: 100px; height: 100px; object-fit: cover; border-radius: 50%; border: 3px solid #007bff; }
     </style>
 </head>
 <body>
@@ -38,34 +21,24 @@
         <div class="row justify-content-center">
             <div class="col-md-4">
                 <div class="card login-card p-4 text-center">
-                    <img src="Logo.png" alt="Logo" class="logo-img mx-auto">
-                    <h3 class="text-primary fw-bold">SISTEMA MANTENIMIENTOS A/A</h3>
-                    <p class="text-muted small mb-4">Ingrese sus credenciales de acceso</p>
-                    
+                    <img src="Logo.png" alt="Logo" class="logo-img mx-auto mb-3">
+                    <h3 class="text-primary fw-bold">SISTEMA A/A</h3>
                     <div class="mb-3 text-start">
-                        <label class="form-label small fw-bold">Correo Electrónico</label>
-                        <input type="email" id="userEmail" class="form-control" placeholder="tu@correo.com">
+                        <label class="small fw-bold">Correo</label>
+                        <input type="email" id="userEmail" class="form-control" placeholder="admin@correo.com">
                     </div>
                     <div class="mb-4 text-start">
-                        <label class="form-label small fw-bold">Contraseña</label>
+                        <label class="small fw-bold">Contraseña</label>
                         <input type="password" id="userPass" class="form-control" placeholder="******">
                     </div>
-                    <button id="btnLogin" class="btn btn-success w-100 fw-bold py-2 shadow">INICIAR SESIÓN</button>
-                    
-                    <div class="mt-3">
-                        <small class="text-muted">Acceso restringido para personal técnico</small>
-                    </div>
+                    <button id="btnLogin" class="btn btn-success w-100 fw-bold shadow">INICIAR SESIÓN</button>
                 </div>
             </div>
         </div>
     </div>
-
     <script type="module">
-        // Importamos Firebase Auth
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-        // Tu configuración de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBHtfZP6tlFJ-Uh4KZfsl_S8ItINDub1Jo",
             authDomain: "aa-control-mantenimiento.firebaseapp.com",
@@ -74,50 +47,19 @@
             messagingSenderId: "415608064599",
             appId: "1:415608064599:web:1acf1db2ff02424f847112"
         };
-
-        // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-
-        // Función de Login
         document.getElementById('btnLogin').onclick = async () => {
             const email = document.getElementById('userEmail').value;
             const pass = document.getElementById('userPass').value;
-
-            if(!email || !pass) {
-                return Swal.fire('Aviso', 'Por favor ingresa correo y contraseña', 'warning');
-            }
-
-            // Mostrar cargando
-            Swal.fire({
-                title: 'Verificando...',
-                allowOutsideClick: false,
-                didOpen: () => { Swal.showLoading() }
-            });
-
             try {
-                // Intentar iniciar sesión en Firebase
                 await signInWithEmailAndPassword(auth, email, pass);
-                
-                // Si es correcto, guardamos la sesión y redirigimos
                 sessionStorage.setItem('isLogged', 'true');
                 window.location.href = "dashboard.html";
-                
-            } catch (error) {
-                console.error(error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Acceso Denegado',
-                    text: 'Usuario o contraseña incorrectos',
-                    confirmButtonColor: '#007bff'
-                });
+            } catch (e) {
+                Swal.fire('Error', 'Credenciales incorrectas', 'error');
             }
         };
-
-        // Permitir entrar con la tecla "Enter"
-        document.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') document.getElementById('btnLogin').click();
-        });
     </script>
 </body>
 </html>
