@@ -3,30 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - A/A</title>
+    <title>Dashboard - Sistema A/A</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        .vencido { background-color: #fff5f5 !important; border-left: 6px solid #dc3545; }
-        .al-dia { border-left: 6px solid #28a745; }
-        .nav-tabs .nav-link.active { background-color: #007bff; color: white; border: none; }
-        .phone-link { text-decoration: none; color: #28a745; font-weight: bold; }
+        .vencido { background-color: #fff5f5 !important; border-left: 5px solid #dc3545; }
+        .al-dia { border-left: 5px solid #28a745; }
+        .phone-link { color: #28a745; text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body class="bg-light">
-    <nav class="navbar navbar-dark bg-primary mb-4 shadow-sm">
+    <nav class="navbar navbar-dark bg-primary mb-3 shadow">
         <div class="container">
-            <span class="navbar-brand fw-bold d-flex align-items-center">
-                <img src="Logo.png" alt="Logo" style="height:35px; border-radius:50%; margin-right:10px;"> GESTIÓN A/A
-            </span>
-            <a href="registro.html" class="btn btn-success btn-sm fw-bold">+ NUEVO CLIENTE</a>
+            <span class="navbar-brand fw-bold"><img src="Logo.png" style="height:30px; border-radius:50%; margin-right:8px;"> CONTROL A/A</span>
+            <a href="registro.html" class="btn btn-success btn-sm fw-bold">+ NUEVO</a>
         </div>
     </nav>
 
     <div class="container-fluid px-4">
-        <input type="text" id="searchInput" class="form-control mb-3 shadow-sm" placeholder="🔍 Buscar por nombre, DNI o distrito..." onkeyup="filtrar()">
-        
-        <div class="card border-0 shadow-sm overflow-hidden">
+        <input type="text" id="searchInput" class="form-control mb-3 shadow-sm" placeholder="🔍 Buscar cliente..." onkeyup="filtrar()">
+        <div class="card shadow-sm overflow-hidden border-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-dark">
@@ -35,8 +31,8 @@
                             <th>DNI / RUC</th>
                             <th>Teléfono</th>
                             <th>Equipo</th>
-                            <th>Mantenimiento</th>
-                            <th class="text-center">Gestión</th>
+                            <th>Próximo Manto.</th>
+                            <th class="text-center">Acción</th>
                         </tr>
                     </thead>
                     <tbody id="maintTable"></tbody>
@@ -49,39 +45,37 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title fw-bold">Expediente Técnico</h5>
+                    <h5 class="modal-title fw-bold">Ficha Técnica</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <ul class="nav nav-tabs mb-3">
-                        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-hist">Hoja de Vida</button></li>
-                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-edit">Editar Cliente</button></li>
+                        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-hist">Historial</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-edit">Editar/Eliminar</button></li>
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="tab-hist">
-                            <div class="p-2 mb-3 bg-warning bg-opacity-10 border border-warning rounded small">
-                                <strong>OBS. INICIALES:</strong> <span id="viewObs"></span>
-                            </div>
-                            <div class="bg-light p-3 border rounded mb-3">
-                                <h6 class="fw-bold small">Registrar Nueva Visita</h6>
+                            <div id="histList" class="mb-3"></div>
+                            <div class="bg-light p-3 border rounded">
+                                <h6 class="fw-bold small">Registrar Mantenimiento</h6>
                                 <div class="row g-2">
-                                    <div class="col-md-4"><input type="date" id="hDate" class="form-control form-control-sm"></div>
-                                    <div class="col-md-8"><input type="text" id="hDesc" class="form-control form-control-sm" placeholder="¿Qué se le hizo al equipo?"></div>
-                                    <div class="col-12"><button id="btnAddHist" class="btn btn-success btn-sm w-100 fw-bold">GUARDAR VISITA</button></div>
+                                    <div class="col-4"><input type="date" id="hDate" class="form-control"></div>
+                                    <div class="col-8"><input type="text" id="hDesc" class="form-control" placeholder="Ej: Limpieza de filtros"></div>
+                                    <button id="btnAddHist" class="btn btn-success w-100 mt-2">GUARDAR VISITA</button>
                                 </div>
                             </div>
-                            <div id="histList" class="border rounded bg-white p-2" style="max-height: 200px; overflow-y: auto;"></div>
                         </div>
                         <div class="tab-pane fade" id="tab-edit">
                             <div class="row g-3">
                                 <div class="col-md-6"><label class="small fw-bold">Nombre</label><input type="text" id="eName" class="form-control"></div>
                                 <div class="col-md-6"><label class="small fw-bold">DNI</label><input type="text" id="eDni" class="form-control"></div>
                                 <div class="col-md-6"><label class="small fw-bold">Teléfono</label><input type="text" id="ePhone" class="form-control"></div>
-                                <div class="col-md-6"><label class="small fw-bold">Distrito</label><input type="text" id="eDist" class="form-control"></div>
-                                <div class="col-12"><label class="small fw-bold">Dirección</label><input type="text" id="eAddr" class="form-control"></div>
-                                <div class="col-12"><label class="small fw-bold">Link Maps</label><input type="text" id="eMaps" class="form-control"></div>
-                                <div class="col-12"><label class="small fw-bold">Editar Observaciones del Equipo</label><textarea id="eObsEdit" class="form-control"></textarea></div>
-                                <div class="col-12 mt-3"><button id="btnUpdate" class="btn btn-primary w-100 fw-bold">GUARDAR CAMBIOS</button></div>
+                                <div class="col-md-6"><label class="small fw-bold">Dirección</label><input type="text" id="eAddr" class="form-control"></div>
+                                <div class="col-12"><label class="small fw-bold">Maps</label><input type="text" id="eMaps" class="form-control"></div>
+                                <div class="col-12 d-flex gap-2 mt-4">
+                                    <button id="btnUpdate" class="btn btn-primary flex-grow-1 fw-bold">ACTUALIZAR DATOS</button>
+                                    <button id="btnDelete" class="btn btn-danger fw-bold">ELIMINAR CLIENTE</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -92,15 +86,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, update, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-        const firebaseConfig = {
-            apiKey: "AIzaSyBHtfZP6tlFJ-Uh4KZfsl_S8ItINDub1Jo",
-            authDomain: "aa-control-mantenimiento.firebaseapp.com",
-            projectId: "aa-control-mantenimiento",
-            storageBucket: "aa-control-mantenimiento.firebasestorage.app",
-            messagingSenderId: "415608064599",
-            appId: "1:415608064599:web:1acf1db2ff02424f847112"
-        };
+        import { getDatabase, ref, onValue, update, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        const firebaseConfig = { apiKey: "AIzaSyBHtfZP6tlFJ-Uh4KZfsl_S8ItINDub1Jo", authDomain: "aa-control-mantenimiento.firebaseapp.com", projectId: "aa-control-mantenimiento", storageBucket: "aa-control-mantenimiento.firebasestorage.app", messagingSenderId: "415608064599", appId: "1:415608064599:web:1acf1db2ff02424f847112" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         let curId = null;
@@ -116,15 +103,14 @@
                 let nextV = new Date(lastV); nextV.setMonth(nextV.getMonth() + 3);
                 const isV = nextV < new Date();
                 
-                tbody.innerHTML += `
-                    <tr class="${isV ? 'vencid' : 'al-dia'} data-row" data-s="${c.name.toLowerCase()} ${c.dni} ${c.district.toLowerCase()}">
-                        <td class="ps-3"><strong>${c.name.toUpperCase()}</strong><br><small class="text-muted">${c.address}</small></td>
-                        <td>${c.dni}</td>
-                        <td><a href="tel:${c.phone}" class="phone-link">📞 ${c.phone}</a></td>
-                        <td>${e.brand}<br><small>${e.btu} | ${e.gas}</small></td>
-                        <td class="fw-bold ${isV ? 'text-danger' : 'text-success'}">${nextV.toLocaleDateString()}</td>
-                        <td class="text-center"><button class="btn btn-sm btn-primary px-3" onclick="openM('${id}')">Ficha</button></td>
-                    </tr>`;
+                tbody.innerHTML += `<tr class="${isV ? 'vencido' : 'al-dia'} data-row" data-s="${c.name.toLowerCase()}">
+                    <td class="ps-3"><strong>${c.name}</strong><br><small class="text-muted">${c.address}</small></td>
+                    <td>${c.dni}</td>
+                    <td><a href="tel:${c.phone}" class="phone-link">📞 ${c.phone}</a></td>
+                    <td>${e.brand} | ${e.btu}</td>
+                    <td class="fw-bold ${isV ? 'text-danger' : 'text-success'}">${nextV.toLocaleDateString()}</td>
+                    <td class="text-center"><button class="btn btn-sm btn-primary" onclick="openM('${id}')">Ficha</button></td>
+                </tr>`;
             }
         });
 
@@ -132,17 +118,13 @@
             curId = id;
             onValue(ref(db, 'clientes/'+id), (s) => {
                 const v = s.val();
-                document.getElementById('viewObs').innerText = v.equipment.obs || "Ninguna";
                 document.getElementById('eName').value = v.client.name;
                 document.getElementById('eDni').value = v.client.dni;
                 document.getElementById('ePhone').value = v.client.phone;
-                document.getElementById('eDist').value = v.client.district;
                 document.getElementById('eAddr').value = v.client.address;
-                document.getElementById('eMaps').value = v.client.maps || "";
-                document.getElementById('eObsEdit').value = v.equipment.obs || "";
-                
+                document.getElementById('eMaps').value = v.client.maps;
                 const hList = document.getElementById('histList');
-                hList.innerHTML = v.history ? Object.values(v.history).reverse().map(h => `<div class="p-2 border-bottom small"><strong>${h.date}:</strong> ${h.desc}</div>`).join('') : '<p class="text-center text-muted py-2">Sin historial</p>';
+                hList.innerHTML = v.history ? Object.values(v.history).reverse().map(h => `<div class="p-2 border-bottom small"><strong>${h.date}:</strong> ${h.desc}</div>`).join('') : 'Sin historial.';
                 new bootstrap.Modal(document.getElementById('hvacModal')).show();
             }, {onlyOnce: true});
         };
@@ -150,10 +132,7 @@
         document.getElementById('btnAddHist').onclick = () => {
             const date = document.getElementById('hDate').value;
             const desc = document.getElementById('hDesc').value;
-            if(!date || !desc) return;
-            push(ref(db, `clientes/${curId}/history`), {date, desc}).then(() => {
-                Swal.fire({icon:'success', title:'Visita guardada', timer:1000, showConfirmButton:false}).then(()=>location.reload());
-            });
+            if(date && desc) push(ref(db, `clientes/${curId}/history`), {date, desc}).then(() => location.reload());
         };
 
         document.getElementById('btnUpdate').onclick = () => {
@@ -161,12 +140,13 @@
             up[`clientes/${curId}/client/name`] = document.getElementById('eName').value;
             up[`clientes/${curId}/client/dni`] = document.getElementById('eDni').value;
             up[`clientes/${curId}/client/phone`] = document.getElementById('ePhone').value;
-            up[`clientes/${curId}/client/district`] = document.getElementById('eDist').value;
             up[`clientes/${curId}/client/address`] = document.getElementById('eAddr').value;
-            up[`clientes/${curId}/client/maps`] = document.getElementById('eMaps').value;
-            up[`clientes/${curId}/equipment/obs`] = document.getElementById('eObsEdit').value;
-            update(ref(db), up).then(() => {
-                Swal.fire('Actualizado', '', 'success').then(() => location.reload());
+            update(ref(db), up).then(() => location.reload());
+        };
+
+        document.getElementById('btnDelete').onclick = () => {
+            Swal.fire({ title: '¿Eliminar cliente?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Sí, borrar' }).then((r) => {
+                if(r.isConfirmed) remove(ref(db, 'clientes/'+curId)).then(() => location.reload());
             });
         };
 
