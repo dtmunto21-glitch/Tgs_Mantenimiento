@@ -7,11 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { 
-            background: linear-gradient(rgba(240, 242, 245, 0.9), rgba(240, 242, 245, 0.9)), 
-                        url('Logo.png') no-repeat center center fixed;
-            background-size: cover;
-        }
+        body { background: #f0f2f5; }
         .card { border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .header-blue { background: #007bff; color: white; border-radius: 12px 12px 0 0; }
         .header-green { background: #28a745; color: white; border-radius: 12px 12px 0 0; }
@@ -19,77 +15,51 @@
 </head>
 <body>
     <div class="container py-4">
-        <div class="text-center mb-4">
-            <img src="Logo.png" alt="Logo" style="height: 60px; border-radius: 50%;" class="shadow mb-2">
-            <h2 class="fw-bold text-primary">NUEVO REGISTRO TÉCNICO</h2>
-        </div>
-
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card mb-4">
                     <div class="card-header header-blue py-3"><h5 class="mb-0">1. Datos del Cliente</h5></div>
                     <div class="card-body p-4 row g-3">
-                        <div class="col-md-6"><label class="small fw-bold">Nombres y Apellidos</label><input type="text" id="cName" class="form-control"></div>
+                        <div class="col-md-6"><label class="small fw-bold">Nombre</label><input type="text" id="cName" class="form-control"></div>
                         <div class="col-md-6"><label class="small fw-bold">DNI / RUC</label><input type="text" id="cDni" class="form-control"></div>
                         <div class="col-md-6"><label class="small fw-bold">Teléfono</label><input type="tel" id="cPhone" class="form-control"></div>
                         <div class="col-md-6"><label class="small fw-bold">Distrito</label><input type="text" id="cDistrict" class="form-control"></div>
                         <div class="col-12"><label class="small fw-bold">Dirección</label><input type="text" id="cAddress" class="form-control"></div>
-                        <div class="col-12"><label class="small fw-bold">Google Maps (Enlace)</label><input type="text" id="cMaps" class="form-control" placeholder="https://..."></div>
+                        <div class="col-12"><label class="small fw-bold">Link Google Maps</label><input type="text" id="cMaps" class="form-control"></div>
                     </div>
                 </div>
-
                 <div class="card mb-4">
                     <div class="card-header header-green py-3"><h5 class="mb-0">2. Detalles del Equipo</h5></div>
                     <div class="card-body p-4 row g-3">
                         <div class="col-md-4">
                             <label class="small fw-bold">Marca</label>
                             <select id="eBrand" class="form-select">
-                                <option value="Mabe">Mabe</option><option value="LG">LG</option>
-                                <option value="Samsung">Samsung</option><option value="York">York</option>
-                                <option value="Midea">Midea</option><option value="Miray">Miray</option>
-                                <option value="Carrier">Carrier</option><option value="Panasonic">Panasonic</option>
+                                <option>Mabe</option><option>LG</option><option>Samsung</option><option>York</option><option>Midea</option>
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="small fw-bold">Capacidad (BTU)</label>
+                            <label class="small fw-bold">Capacidad</label>
                             <select id="eBtu" class="form-select">
-                                <option value="9k">9k BTU</option>
-                                <option value="12k" selected>12k BTU</option>
-                                <option value="18k">18k BTU</option>
-                                <option value="24k">24k BTU</option>
-                                <option value="36k">36k BTU</option>
-                                <option value="48k">48k BTU</option>
-                                <option value="60k">60k BTU</option>
+                                <option>9k</option><option selected>12k</option><option>18k</option><option>24k</option><option>36k</option>
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="small fw-bold">Tipo de Gas</label>
+                            <label class="small fw-bold">Gas</label>
                             <select id="eGas" class="form-select">
-                                <option value="R410A" selected>R410A</option>
-                                <option value="R22">R22</option>
-                                <option value="R32">R32</option>
-                                <option value="R134a">R134a</option>
-                                <option value="R407C">R407C</option>
+                                <option selected>R410A</option><option>R22</option><option>R32</option>
                             </select>
                         </div>
-                        <div class="col-md-6"><label class="small fw-bold">Fecha de Instalación</label><input type="date" id="eDate" class="form-control"></div>
-                        <div class="col-12"><label class="small fw-bold">Observaciones del Equipo</label><textarea id="eObs" class="form-control" rows="2" placeholder="Detalles iniciales..."></textarea></div>
+                        <div class="col-md-6"><label class="small fw-bold">Fecha Instalación</label><input type="date" id="eDate" class="form-control"></div>
+                        <div class="col-12"><label class="small fw-bold">Observaciones</label><textarea id="eObs" class="form-control" rows="2"></textarea></div>
                     </div>
                 </div>
-
-                <div class="d-flex gap-2">
-                    <button id="btnSave" class="btn btn-success btn-lg flex-grow-1 fw-bold shadow">GUARDAR REGISTRO</button>
-                    <a href="dashboard.html" class="btn btn-outline-secondary btn-lg">VOLVER</a>
-                </div>
+                <button id="btnSave" class="btn btn-success btn-lg w-100 fw-bold">GUARDAR REGISTRO</button>
             </div>
         </div>
     </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-        // CONFIGURACIÓN DE TU FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyBHtfZP6tlFJ-Uh4KZfsl_S8ItINDub1Jo",
             authDomain: "aa-control-mantenimiento.firebaseapp.com",
@@ -98,60 +68,16 @@
             messagingSenderId: "415608064599",
             appId: "1:415608064599:web:1acf1db2ff02424f847112"
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-
-        // Seguridad: Solo entrar si está logueado
-        if(sessionStorage.getItem('isLogged') !== 'true') window.location.href = "index.html";
-
         document.getElementById('btnSave').onclick = () => {
-            // Capturar datos
             const name = document.getElementById('cName').value;
-            const dni = document.getElementById('cDni').value;
-            const date = document.getElementById('eDate').value;
-
-            // Validación mínima
-            if(!name || !dni || !date) {
-                return Swal.fire('Error', 'Nombre, DNI y Fecha son obligatorios', 'error');
-            }
-
-            // Crear objeto para Firebase
-            const clientData = {
-                client: {
-                    name: name,
-                    dni: dni,
-                    phone: document.getElementById('cPhone').value,
-                    district: document.getElementById('cDistrict').value,
-                    address: document.getElementById('cAddress').value,
-                    maps: document.getElementById('cMaps').value || "#"
-                },
-                equipment: {
-                    brand: document.getElementById('eBrand').value,
-                    btu: document.getElementById('eBtu').value,
-                    gas: document.getElementById('eGas').value,
-                    date: date,
-                    obs: document.getElementById('eObs').value || ""
-                }
-            };
-
-            // Guardar en Firebase
-            const clientsRef = ref(db, 'clientes');
-            const newClientRef = push(clientsRef);
-            
-            set(newClientRef, clientData)
-                .then(() => {
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Guardado Correctamente!',
-                        showConfirmButton: false,
-                        timer: 1500
-                    }).then(() => window.location.href = "dashboard.html");
-                })
-                .catch((error) => {
-                    console.error("Error al guardar:", error);
-                    Swal.fire('Error', 'No se pudo guardar: ' + error.message, 'error');
-                });
+            if(!name || !document.getElementById('eDate').value) return Swal.fire('Error', 'Completa los campos', 'error');
+            const newRef = push(ref(db, 'clientes'));
+            set(newRef, {
+                client: { name, dni: document.getElementById('cDni').value, phone: document.getElementById('cPhone').value, district: document.getElementById('cDistrict').value, address: document.getElementById('cAddress').value, maps: document.getElementById('cMaps').value || "#" },
+                equipment: { brand: document.getElementById('eBrand').value, btu: document.getElementById('eBtu').value, gas: document.getElementById('eGas').value, date: document.getElementById('eDate').value, obs: document.getElementById('eObs').value }
+            }).then(() => { Swal.fire('Éxito', 'Guardado', 'success').then(() => window.location.href="dashboard.html"); });
         };
     </script>
 </body>
