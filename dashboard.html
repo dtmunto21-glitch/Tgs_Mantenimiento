@@ -9,30 +9,34 @@
     <style>
         .vencido { background-color: #fff5f5 !important; border-left: 6px solid #dc3545; }
         .al-dia { border-left: 6px solid #28a745; }
-        .nav-tabs .nav-link.active { background-color: #007bff; color: white; }
+        .nav-tabs .nav-link.active { background-color: #007bff; color: white; border: none; }
+        .phone-link { text-decoration: none; color: #28a745; font-weight: bold; }
     </style>
 </head>
 <body class="bg-light">
-    <nav class="navbar navbar-dark bg-primary mb-4">
+    <nav class="navbar navbar-dark bg-primary mb-4 shadow-sm">
         <div class="container">
-            <span class="navbar-brand fw-bold">CONTROL TÉCNICO</span>
-            <a href="registro.html" class="btn btn-success fw-bold">+ NUEVO</a>
+            <span class="navbar-brand fw-bold d-flex align-items-center">
+                <img src="Logo.png" alt="Logo" style="height:35px; border-radius:50%; margin-right:10px;"> GESTIÓN A/A
+            </span>
+            <a href="registro.html" class="btn btn-success btn-sm fw-bold">+ NUEVO CLIENTE</a>
         </div>
     </nav>
 
     <div class="container-fluid px-4">
-        <input type="text" id="searchInput" class="form-control mb-3" placeholder="🔍 Buscar cliente..." onkeyup="filtrar()">
-        <div class="card shadow-sm overflow-hidden">
+        <input type="text" id="searchInput" class="form-control mb-3 shadow-sm" placeholder="🔍 Buscar por nombre, DNI o distrito..." onkeyup="filtrar()">
+        
+        <div class="card border-0 shadow-sm overflow-hidden">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-dark">
                         <tr>
-                            <th>Cliente / Dirección</th>
-                            <th>DNI</th>
+                            <th class="ps-3">Cliente / Dirección</th>
+                            <th>DNI / RUC</th>
                             <th>Teléfono</th>
                             <th>Equipo</th>
                             <th>Mantenimiento</th>
-                            <th>Gestión</th>
+                            <th class="text-center">Gestión</th>
                         </tr>
                     </thead>
                     <tbody id="maintTable"></tbody>
@@ -45,7 +49,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">Expediente Técnico</h5>
+                    <h5 class="modal-title fw-bold">Expediente Técnico</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -55,26 +59,29 @@
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="tab-hist">
-                            <div class="alert alert-warning py-2 small"><strong>OBS:</strong> <span id="viewObs"></span></div>
-                            <div class="bg-light p-2 border rounded mb-2">
+                            <div class="p-2 mb-3 bg-warning bg-opacity-10 border border-warning rounded small">
+                                <strong>OBS. INICIALES:</strong> <span id="viewObs"></span>
+                            </div>
+                            <div class="bg-light p-3 border rounded mb-3">
+                                <h6 class="fw-bold small">Registrar Nueva Visita</h6>
                                 <div class="row g-2">
-                                    <div class="col-4"><input type="date" id="hDate" class="form-control form-control-sm"></div>
-                                    <div class="col-8"><input type="text" id="hDesc" class="form-control form-control-sm" placeholder="Detalle..."></div>
-                                    <button id="btnAddHist" class="btn btn-success btn-sm w-100 mt-2">Añadir Visita</button>
+                                    <div class="col-md-4"><input type="date" id="hDate" class="form-control form-control-sm"></div>
+                                    <div class="col-md-8"><input type="text" id="hDesc" class="form-control form-control-sm" placeholder="¿Qué se le hizo al equipo?"></div>
+                                    <div class="col-12"><button id="btnAddHist" class="btn btn-success btn-sm w-100 fw-bold">GUARDAR VISITA</button></div>
                                 </div>
                             </div>
-                            <div id="histList" class="small" style="max-height: 200px; overflow-y: auto;"></div>
+                            <div id="histList" class="border rounded bg-white p-2" style="max-height: 200px; overflow-y: auto;"></div>
                         </div>
                         <div class="tab-pane fade" id="tab-edit">
-                            <div class="row g-2">
-                                <div class="col-6"><label class="small">Nombre</label><input type="text" id="eName" class="form-control"></div>
-                                <div class="col-6"><label class="small">DNI</label><input type="text" id="eDni" class="form-control"></div>
-                                <div class="col-6"><label class="small">Teléfono</label><input type="text" id="ePhone" class="form-control"></div>
-                                <div class="col-6"><label class="small">Distrito</label><input type="text" id="eDist" class="form-control"></div>
-                                <div class="col-12"><label class="small">Dirección</label><input type="text" id="eAddr" class="form-control"></div>
-                                <div class="col-12"><label class="small">Maps Link</label><input type="text" id="eMaps" class="form-control"></div>
-                                <div class="col-12"><label class="small">Obs. Equipo</label><textarea id="eObsEdit" class="form-control"></textarea></div>
-                                <button id="btnUpdate" class="btn btn-primary w-100 mt-3">GUARDAR CAMBIOS</button>
+                            <div class="row g-3">
+                                <div class="col-md-6"><label class="small fw-bold">Nombre</label><input type="text" id="eName" class="form-control"></div>
+                                <div class="col-md-6"><label class="small fw-bold">DNI</label><input type="text" id="eDni" class="form-control"></div>
+                                <div class="col-md-6"><label class="small fw-bold">Teléfono</label><input type="text" id="ePhone" class="form-control"></div>
+                                <div class="col-md-6"><label class="small fw-bold">Distrito</label><input type="text" id="eDist" class="form-control"></div>
+                                <div class="col-12"><label class="small fw-bold">Dirección</label><input type="text" id="eAddr" class="form-control"></div>
+                                <div class="col-12"><label class="small fw-bold">Link Maps</label><input type="text" id="eMaps" class="form-control"></div>
+                                <div class="col-12"><label class="small fw-bold">Editar Observaciones del Equipo</label><textarea id="eObsEdit" class="form-control"></textarea></div>
+                                <div class="col-12 mt-3"><button id="btnUpdate" class="btn btn-primary w-100 fw-bold">GUARDAR CAMBIOS</button></div>
                             </div>
                         </div>
                     </div>
@@ -108,14 +115,16 @@
                 let lastV = hist.length > 0 ? hist[hist.length-1].date : e.date;
                 let nextV = new Date(lastV); nextV.setMonth(nextV.getMonth() + 3);
                 const isV = nextV < new Date();
-                tbody.innerHTML += `<tr class="${isV ? 'vencido' : 'al-dia'} data-row" data-s="${c.name.toLowerCase()}">
-                    <td><strong>${c.name}</strong><br><small>${c.address}</small></td>
-                    <td>${c.dni}</td>
-                    <td>${c.phone}</td>
-                    <td>${e.brand} (${e.btu})</td>
-                    <td class="fw-bold ${isV ? 'text-danger' : 'text-success'}">${nextV.toLocaleDateString()}</td>
-                    <td><button class="btn btn-sm btn-primary" onclick="openM('${id}')">Ficha</button></td>
-                </tr>`;
+                
+                tbody.innerHTML += `
+                    <tr class="${isV ? 'vencid' : 'al-dia'} data-row" data-s="${c.name.toLowerCase()} ${c.dni} ${c.district.toLowerCase()}">
+                        <td class="ps-3"><strong>${c.name.toUpperCase()}</strong><br><small class="text-muted">${c.address}</small></td>
+                        <td>${c.dni}</td>
+                        <td><a href="tel:${c.phone}" class="phone-link">📞 ${c.phone}</a></td>
+                        <td>${e.brand}<br><small>${e.btu} | ${e.gas}</small></td>
+                        <td class="fw-bold ${isV ? 'text-danger' : 'text-success'}">${nextV.toLocaleDateString()}</td>
+                        <td class="text-center"><button class="btn btn-sm btn-primary px-3" onclick="openM('${id}')">Ficha</button></td>
+                    </tr>`;
             }
         });
 
@@ -123,16 +132,17 @@
             curId = id;
             onValue(ref(db, 'clientes/'+id), (s) => {
                 const v = s.val();
-                document.getElementById('viewObs').innerText = v.equipment.obs || "Sin obs.";
+                document.getElementById('viewObs').innerText = v.equipment.obs || "Ninguna";
                 document.getElementById('eName').value = v.client.name;
                 document.getElementById('eDni').value = v.client.dni;
                 document.getElementById('ePhone').value = v.client.phone;
                 document.getElementById('eDist').value = v.client.district;
                 document.getElementById('eAddr').value = v.client.address;
-                document.getElementById('eMaps').value = v.client.maps;
-                document.getElementById('eObsEdit').value = v.equipment.obs;
+                document.getElementById('eMaps').value = v.client.maps || "";
+                document.getElementById('eObsEdit').value = v.equipment.obs || "";
+                
                 const hList = document.getElementById('histList');
-                hList.innerHTML = v.history ? Object.values(v.history).reverse().map(h => `<div>• ${h.date}: ${h.desc}</div>`).join('') : 'No hay visitas.';
+                hList.innerHTML = v.history ? Object.values(v.history).reverse().map(h => `<div class="p-2 border-bottom small"><strong>${h.date}:</strong> ${h.desc}</div>`).join('') : '<p class="text-center text-muted py-2">Sin historial</p>';
                 new bootstrap.Modal(document.getElementById('hvacModal')).show();
             }, {onlyOnce: true});
         };
@@ -140,7 +150,10 @@
         document.getElementById('btnAddHist').onclick = () => {
             const date = document.getElementById('hDate').value;
             const desc = document.getElementById('hDesc').value;
-            if(date && desc) push(ref(db, `clientes/${curId}/history`), {date, desc}).then(()=>location.reload());
+            if(!date || !desc) return;
+            push(ref(db, `clientes/${curId}/history`), {date, desc}).then(() => {
+                Swal.fire({icon:'success', title:'Visita guardada', timer:1000, showConfirmButton:false}).then(()=>location.reload());
+            });
         };
 
         document.getElementById('btnUpdate').onclick = () => {
@@ -148,10 +161,13 @@
             up[`clientes/${curId}/client/name`] = document.getElementById('eName').value;
             up[`clientes/${curId}/client/dni`] = document.getElementById('eDni').value;
             up[`clientes/${curId}/client/phone`] = document.getElementById('ePhone').value;
+            up[`clientes/${curId}/client/district`] = document.getElementById('eDist').value;
             up[`clientes/${curId}/client/address`] = document.getElementById('eAddr').value;
             up[`clientes/${curId}/client/maps`] = document.getElementById('eMaps').value;
             up[`clientes/${curId}/equipment/obs`] = document.getElementById('eObsEdit').value;
-            update(ref(db), up).then(() => location.reload());
+            update(ref(db), up).then(() => {
+                Swal.fire('Actualizado', '', 'success').then(() => location.reload());
+            });
         };
 
         window.filtrar = () => {
