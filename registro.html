@@ -15,45 +15,52 @@
 </head>
 <body>
     <div class="container py-4">
+        <div class="text-center mb-3">
+            <img src="Logo.png" alt="Logo" style="height: 60px; border-radius: 50%; border: 2px solid #007bff;">
+            <h4 class="fw-bold text-primary mt-2">NUEVO CLIENTE</h4>
+        </div>
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card mb-4">
-                    <div class="card-header header-blue py-3"><h5 class="mb-0">1. Datos del Cliente</h5></div>
+                    <div class="card-header header-blue py-3"><h6 class="mb-0">1. DATOS DEL CLIENTE</h6></div>
                     <div class="card-body p-4 row g-3">
-                        <div class="col-md-6"><label class="small fw-bold">Nombre</label><input type="text" id="cName" class="form-control"></div>
+                        <div class="col-md-6"><label class="small fw-bold">Nombre Completo</label><input type="text" id="cName" class="form-control"></div>
                         <div class="col-md-6"><label class="small fw-bold">DNI / RUC</label><input type="text" id="cDni" class="form-control"></div>
                         <div class="col-md-6"><label class="small fw-bold">Teléfono</label><input type="tel" id="cPhone" class="form-control"></div>
                         <div class="col-md-6"><label class="small fw-bold">Distrito</label><input type="text" id="cDistrict" class="form-control"></div>
-                        <div class="col-12"><label class="small fw-bold">Dirección</label><input type="text" id="cAddress" class="form-control"></div>
-                        <div class="col-12"><label class="small fw-bold">Link Google Maps</label><input type="text" id="cMaps" class="form-control"></div>
+                        <div class="col-12"><label class="small fw-bold">Dirección Exacta</label><input type="text" id="cAddress" class="form-control"></div>
+                        <div class="col-12"><label class="small fw-bold">Link Google Maps</label><input type="text" id="cMaps" class="form-control" placeholder="https://goo.gl/maps/..."></div>
                     </div>
                 </div>
                 <div class="card mb-4">
-                    <div class="card-header header-green py-3"><h5 class="mb-0">2. Detalles del Equipo</h5></div>
+                    <div class="card-header header-green py-3"><h6 class="mb-0">2. DETALLES DEL EQUIPO</h6></div>
                     <div class="card-body p-4 row g-3">
                         <div class="col-md-4">
                             <label class="small fw-bold">Marca</label>
                             <select id="eBrand" class="form-select">
-                                <option>Mabe</option><option>LG</option><option>Samsung</option><option>York</option><option>Midea</option>
+                                <option>Mabe</option><option>LG</option><option>Samsung</option><option>York</option><option>Midea</option><option>Carrier</option><option>Miray</option>
                             </select>
                         </div>
                         <div class="col-md-4">
                             <label class="small fw-bold">Capacidad</label>
                             <select id="eBtu" class="form-select">
-                                <option>9k</option><option selected>12k</option><option>18k</option><option>24k</option><option>36k</option>
+                                <option>9k BTU</option><option selected>12k BTU</option><option>18k BTU</option><option>24k BTU</option><option>36k BTU</option><option>48k BTU</option><option>60k BTU</option>
                             </select>
                         </div>
                         <div class="col-md-4">
                             <label class="small fw-bold">Gas</label>
                             <select id="eGas" class="form-select">
-                                <option selected>R410A</option><option>R22</option><option>R32</option>
+                                <option selected>R410A</option><option>R22</option><option>R32</option><option>R134A</option>
                             </select>
                         </div>
-                        <div class="col-md-6"><label class="small fw-bold">Fecha Instalación</label><input type="date" id="eDate" class="form-control"></div>
-                        <div class="col-12"><label class="small fw-bold">Observaciones</label><textarea id="eObs" class="form-control" rows="2"></textarea></div>
+                        <div class="col-md-6"><label class="small fw-bold">Fecha Instalación / Último Manto.</label><input type="date" id="eDate" class="form-control"></div>
+                        <div class="col-12"><label class="small fw-bold">Observaciones Iniciales</label><textarea id="eObs" class="form-control" rows="2" placeholder="Ej: Equipo seminuevo, ruido en ventilador..."></textarea></div>
                     </div>
                 </div>
-                <button id="btnSave" class="btn btn-success btn-lg w-100 fw-bold">GUARDAR REGISTRO</button>
+                <div class="d-flex gap-2">
+                    <button id="btnSave" class="btn btn-success btn-lg flex-grow-1 fw-bold">GUARDAR TODO</button>
+                    <a href="dashboard.html" class="btn btn-outline-secondary btn-lg">CANCELAR</a>
+                </div>
             </div>
         </div>
     </div>
@@ -70,14 +77,34 @@
         };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+
         document.getElementById('btnSave').onclick = () => {
             const name = document.getElementById('cName').value;
-            if(!name || !document.getElementById('eDate').value) return Swal.fire('Error', 'Completa los campos', 'error');
-            const newRef = push(ref(db, 'clientes'));
-            set(newRef, {
-                client: { name, dni: document.getElementById('cDni').value, phone: document.getElementById('cPhone').value, district: document.getElementById('cDistrict').value, address: document.getElementById('cAddress').value, maps: document.getElementById('cMaps').value || "#" },
-                equipment: { brand: document.getElementById('eBrand').value, btu: document.getElementById('eBtu').value, gas: document.getElementById('eGas').value, date: document.getElementById('eDate').value, obs: document.getElementById('eObs').value }
-            }).then(() => { Swal.fire('Éxito', 'Guardado', 'success').then(() => window.location.href="dashboard.html"); });
+            const date = document.getElementById('eDate').value;
+            if(!name || !date) return Swal.fire('Error', 'Nombre y Fecha son obligatorios', 'error');
+
+            const clientsRef = ref(db, 'clientes');
+            const newClientRef = push(clientsRef);
+            
+            set(newClientRef, {
+                client: {
+                    name: name,
+                    dni: document.getElementById('cDni').value || "---",
+                    phone: document.getElementById('cPhone').value || "---",
+                    district: document.getElementById('cDistrict').value || "---",
+                    address: document.getElementById('cAddress').value || "---",
+                    maps: document.getElementById('cMaps').value || "#"
+                },
+                equipment: {
+                    brand: document.getElementById('eBrand').value,
+                    btu: document.getElementById('eBtu').value,
+                    gas: document.getElementById('eGas').value,
+                    date: date,
+                    obs: document.getElementById('eObs').value || ""
+                }
+            }).then(() => {
+                Swal.fire('¡Éxito!', 'Cliente registrado', 'success').then(() => window.location.href="dashboard.html");
+            }).catch(e => Swal.fire('Error', e.message, 'error'));
         };
     </script>
 </body>
