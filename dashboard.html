@@ -3,36 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Sistema A/A</title>
+    <title>Dashboard Pro - Sistema A/A</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        .vencido { background-color: #fff5f5 !important; border-left: 5px solid #dc3545; }
-        .al-dia { border-left: 5px solid #28a745; }
+        :root { --vencido: #ffeded; --por-vencer: #fff9e6; --al-dia: #f2fff5; }
+        body { background-color: #f4f7f6; }
+        
+        /* Semáforo de filas */
+        .vencido { background-color: var(--vencido) !important; border-left: 6px solid #dc3545; }
+        .por-vencer { background-color: var(--por-vencer) !important; border-left: 6px solid #ffc107; }
+        .al-dia { background-color: var(--al-dia) !important; border-left: 6px solid #28a745; }
+        
         .phone-link { color: #28a745; text-decoration: none; font-weight: bold; }
+        .navbar { background: linear-gradient(90deg, #0d6efd 0%, #004085 100%); }
+        .card { border-radius: 15px; }
+        .btn-salir { border: 1px solid rgba(255,255,255,0.5); color: white; }
+        .btn-salir:hover { background: rgba(255,255,255,0.2); color: white; }
     </style>
 </head>
-<body class="bg-light">
-    <nav class="navbar navbar-dark bg-primary mb-3 shadow">
-        <div class="container">
-            <span class="navbar-brand fw-bold"><img src="Logo.png" style="height:30px; border-radius:50%; margin-right:8px;"> CONTROL A/A</span>
-            <a href="registro.html" class="btn btn-success btn-sm fw-bold">+ NUEVO CLIENTE</a>
+<body>
+    <nav class="navbar navbar-dark shadow-sm sticky-top mb-4">
+        <div class="container-fluid px-4">
+            <span class="navbar-brand fw-bold d-flex align-items-center">
+                <img src="Logo.png" style="height:35px; border-radius:50%; margin-right:10px;">
+                CONTROL DE MANTENIMIENTO
+            </span>
+            <div class="d-flex align-items-center gap-3">
+                <div id="alertBadge" class="badge bg-danger rounded-pill d-none animate__animated animate__pulse animate__infinite">
+                    <i class="bi bi-exclamation-triangle"></i> <span id="alertCount">0</span> Pendientes
+                </div>
+                <a href="registro.html" class="btn btn-success fw-bold border-0 shadow-sm">+ NUEVO CLIENTE</a>
+                <button onclick="salir()" class="btn btn-salir fw-bold shadow-sm">
+                    <i class="bi bi-box-arrow-right"></i> SALIR
+                </button>
+            </div>
         </div>
     </nav>
 
     <div class="container-fluid px-4">
-        <input type="text" id="searchInput" class="form-control mb-3 shadow-sm" placeholder="🔍 Buscar cliente..." onkeyup="filtrar()">
-        <div class="card shadow-sm overflow-hidden border-0">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="input-group input-group-lg shadow-sm">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" id="searchInput" class="form-control border-start-0 ps-0" 
+                    placeholder="Buscar por Nombre, DNI, Distrito o Dirección..." onkeyup="filtrar()">
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-dark">
                         <tr>
-                            <th class="ps-3">Cliente / Dirección</th>
+                            <th class="ps-4 py-3">CLIENTE / DIRECCIÓN</th>
                             <th>DNI / RUC</th>
-                            <th>Teléfono</th>
-                            <th>Equipo</th>
-                            <th>Próximo Manto.</th>
-                            <th class="text-center">Acción</th>
+                            <th>TELÉFONO</th>
+                            <th>EQUIPO</th>
+                            <th>ESTADO / PRÓXIMO</th>
+                            <th class="text-center">GESTIÓN</th>
                         </tr>
                     </thead>
                     <tbody id="maintTable"></tbody>
@@ -42,31 +73,32 @@
     </div>
 
     <div class="modal fade" id="hvacModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title fw-bold">Expediente Técnico</h5>
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-header bg-primary text-white border-0 py-3">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-folder2-open"></i> Expediente Técnico</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <ul class="nav nav-tabs mb-3">
-                        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-hist">Hoja de Vida</button></li>
-                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-edit">Editar Cliente</button></li>
+                <div class="modal-body p-4">
+                    <ul class="nav nav-pills mb-4 bg-light p-1 rounded-pill" id="pills-tab">
+                        <li class="nav-item flex-fill"><button class="nav-link active rounded-pill fw-bold" data-bs-toggle="pill" data-bs-target="#tab-hist">Hoja de Vida</button></li>
+                        <li class="nav-item flex-fill"><button class="nav-link rounded-pill fw-bold" data-bs-toggle="pill" data-bs-target="#tab-edit">Editar Cliente</button></li>
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="tab-hist">
-                            <div class="p-2 mb-3 bg-warning bg-opacity-10 border border-warning rounded">
-                                <strong>OBS. INICIALES:</strong> <span id="viewObs"></span>
+                            <div class="p-3 mb-4 bg-info bg-opacity-10 border-start border-info border-4 rounded">
+                                <strong class="text-primary"><i class="bi bi-chat-left-text"></i> OBS. INICIALES:</strong> 
+                                <p id="viewObs" class="mb-0 mt-1 fst-italic text-secondary"></p>
                             </div>
-                            <div class="bg-light p-3 border rounded mb-3">
-                                <h6 class="fw-bold small">Registrar Nueva Visita</h6>
-                                <div class="row g-2">
+                            <div class="bg-light p-4 rounded-4 mb-4 border">
+                                <h6 class="fw-bold mb-3 text-dark"><i class="bi bi-calendar-plus"></i> Registrar Nueva Visita</h6>
+                                <div class="row g-3">
                                     <div class="col-md-4"><input type="date" id="hDate" class="form-control"></div>
                                     <div class="col-md-8"><input type="text" id="hDesc" class="form-control" placeholder="¿Qué se le hizo al equipo?"></div>
-                                    <div class="col-12"><button id="btnAddHist" class="btn btn-success w-100 fw-bold mt-2">GUARDAR VISITA</button></div>
+                                    <div class="col-12"><button id="btnAddHist" class="btn btn-success w-100 fw-bold py-2 shadow-sm">GUARDAR VISITA</button></div>
                                 </div>
                             </div>
-                            <div id="histList" class="border rounded bg-white p-2"></div>
+                            <div id="histList" class="p-1"></div>
                         </div>
 
                         <div class="tab-pane fade" id="tab-edit">
@@ -77,12 +109,10 @@
                                 <div class="col-md-6"><label class="small fw-bold">Distrito</label><input type="text" id="eDist" class="form-control"></div>
                                 <div class="col-12"><label class="small fw-bold">Dirección</label><input type="text" id="eAddr" class="form-control"></div>
                                 <div class="col-12"><label class="small fw-bold">Link Maps</label><input type="text" id="eMaps" class="form-control"></div>
-                                <div class="col-12"><label class="small fw-bold">Editar Observaciones del Equipo</label><textarea id="eObsEdit" class="form-control"></textarea></div>
-                                
+                                <div class="col-12"><label class="small fw-bold">Observaciones del Equipo</label><textarea id="eObsEdit" class="form-control" rows="3"></textarea></div>
                                 <div class="col-12 mt-4">
-                                    <button id="btnUpdate" class="btn btn-primary w-100 fw-bold mb-3">GUARDAR CAMBIOS</button>
-                                    <hr>
-                                    <button id="btnDelete" class="btn btn-outline-danger fw-bold">Eliminar Cliente</button>
+                                    <button id="btnUpdate" class="btn btn-primary w-100 fw-bold py-2 shadow-sm mb-3">GUARDAR CAMBIOS</button>
+                                    <button id="btnDelete" class="btn btn-outline-danger w-100 fw-bold py-2">ELIMINAR CLIENTE</button>
                                 </div>
                             </div>
                         </div>
@@ -108,38 +138,81 @@
         const db = getDatabase(app);
         let curId = null;
 
-        // Cargar Tabla
+        // CARGAR TABLA CON LÓGICA DE ALERTAS
         onValue(ref(db, 'clientes'), (snap) => {
             const data = snap.val();
             const tbody = document.getElementById('maintTable');
+            const alertBadge = document.getElementById('alertBadge');
+            const alertCount = document.getElementById('alertCount');
             tbody.innerHTML = '';
+            let countVencidos = 0;
+
             if(!data) return;
+
             for(let id in data) {
                 const c = data[id].client; const e = data[id].equipment;
                 const hist = data[id].history ? Object.values(data[id].history) : [];
-                let lastV = hist.length > 0 ? hist[hist.length-1].date : e.date;
-                let nextV = new Date(lastV); nextV.setMonth(nextV.getMonth() + 3);
-                const isV = nextV < new Date();
                 
-                tbody.innerHTML += `<tr class="${isV ? 'vencido' : 'al-dia'} data-row" data-s="${c.name.toLowerCase()}">
-                    <td class="ps-3"><strong>${c.name.toUpperCase()}</strong><br><small class="text-muted">${c.address}</small></td>
-                    <td>${c.dni}</td>
-                    <td><a href="tel:${c.phone}" class="phone-link">📞 ${c.phone}</a></td>
-                    <td>${e.brand}<br><small>${e.btu}</small></td>
-                    <td class="fw-bold ${isV ? 'text-danger' : 'text-success'}">${nextV.toLocaleDateString()}</td>
-                    <td class="text-center"><button class="btn btn-sm btn-primary px-3" onclick="openM('${id}')">Ficha</button></td>
-                </tr>`;
+                // Cálculo de fechas
+                let lastV = hist.length > 0 ? hist[hist.length-1].date : e.date;
+                let nextV = new Date(lastV); nextV.setMonth(nextV.setMonth() + 3);
+                
+                let hoy = new Date();
+                let diferencia = (nextV - hoy) / (1000 * 60 * 60 * 24); // Diferencia en días
+
+                let statusClass = "al-dia";
+                let badgeClass = "bg-success";
+                let statusText = "AL DÍA";
+
+                if (diferencia < 0) {
+                    statusClass = "vencido";
+                    badgeClass = "bg-danger";
+                    statusText = "VENCIDO";
+                    countVencidos++;
+                } else if (diferencia <= 7) {
+                    statusClass = "por-vencer";
+                    badgeClass = "bg-warning text-dark";
+                    statusText = "PRÓXIMO";
+                }
+
+                // Variable de búsqueda pro
+                const searchString = `${c.name} ${c.dni} ${c.district || ''} ${c.address}`.toLowerCase();
+                
+                tbody.innerHTML += `
+                    <tr class="${statusClass} data-row" data-s="${searchString}">
+                        <td class="ps-4">
+                            <span class="fw-bold text-dark">${c.name.toUpperCase()}</span><br>
+                            <small class="text-muted"><i class="bi bi-geo-alt"></i> ${c.address}</small>
+                        </td>
+                        <td>${c.dni}</td>
+                        <td><a href="tel:${c.phone}" class="phone-link"><i class="bi bi-whatsapp"></i> ${c.phone}</a></td>
+                        <td><span class="badge bg-secondary">${e.brand}</span><br><small>${e.btu}</small></td>
+                        <td>
+                            <span class="badge ${badgeClass} mb-1">${statusText}</span><br>
+                            <span class="small fw-bold"><i class="bi bi-calendar3"></i> ${nextV.toLocaleDateString()}</span>
+                        </td>
+                        <td class="text-center">
+                            <button class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm" onclick="openM('${id}')">Ver Ficha</button>
+                        </td>
+                    </tr>`;
+            }
+
+            // Actualizar contador de alertas
+            if(countVencidos > 0) {
+                alertCount.innerText = countVencidos;
+                alertBadge.classList.remove('d-none');
+            } else {
+                alertBadge.classList.add('d-none');
             }
         });
 
-        // Abrir Modal
+        // FUNCIONALIDADES DEL MODAL (Iguales pero corregidas)
         window.openM = (id) => {
             curId = id;
             onValue(ref(db, 'clientes/'+id), (s) => {
                 const v = s.val();
                 if(!v) return;
-                // Evitar el "undefined"
-                document.getElementById('viewObs').innerText = v.equipment.obs || "Sin observaciones";
+                document.getElementById('viewObs').innerText = v.equipment.obs || "Sin observaciones iniciales.";
                 document.getElementById('eName').value = v.client.name || "";
                 document.getElementById('eDni').value = v.client.dni || "";
                 document.getElementById('ePhone').value = v.client.phone || "";
@@ -149,10 +222,36 @@
                 document.getElementById('eObsEdit').value = v.equipment.obs || "";
 
                 const hList = document.getElementById('histList');
-                hList.innerHTML = v.history ? Object.values(v.history).reverse().map(h => `<div class="p-2 border-bottom small"><strong>${h.date}:</strong> ${h.desc}</div>`).join('') : '<p class="text-center text-muted py-2">Sin historial</p>';
+                hList.innerHTML = v.history ? Object.values(v.history).reverse().map(h => `
+                    <div class="card mb-2 border-0 bg-light shadow-sm">
+                        <div class="card-body p-2 px-3 d-flex justify-content-between align-items-center">
+                            <span class="fw-bold small text-primary">${h.date}</span>
+                            <span class="small text-secondary">${h.desc}</span>
+                        </div>
+                    </div>`).join('') : '<p class="text-center text-muted py-3">No hay mantenimientos previos registrados.</p>';
                 
                 new bootstrap.Modal(document.getElementById('hvacModal')).show();
             }, {onlyOnce: true});
+        };
+
+        // BOTÓN SALIR
+        window.salir = () => {
+            Swal.fire({
+                title: '¿Cerrar sesión?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#0d6efd',
+                confirmButtonText: 'Sí, salir',
+                cancelButtonText: 'Cancelar'
+            }).then((r) => {
+                if(r.isConfirmed) window.location.href = "index.html";
+            });
+        };
+
+        // FILTRAR
+        window.filtrar = () => {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            document.querySelectorAll('.data-row').forEach(r => r.style.display = r.dataset.s.includes(q) ? '' : 'none');
         };
 
         // Guardar Visita
@@ -163,7 +262,7 @@
             push(ref(db, `clientes/${curId}/history`), {date, desc}).then(() => location.reload());
         };
 
-        // Actualizar Cliente
+        // Actualizar
         document.getElementById('btnUpdate').onclick = () => {
             const up = {};
             up[`clientes/${curId}/client/name`] = document.getElementById('eName').value;
@@ -176,7 +275,7 @@
             update(ref(db), up).then(() => Swal.fire('Éxito', 'Datos actualizados', 'success').then(() => location.reload()));
         };
 
-        // ELIMINAR CLIENTE
+        // Eliminar
         document.getElementById('btnDelete').onclick = () => {
             Swal.fire({
                 title: '¿Eliminar cliente?',
@@ -184,20 +283,12 @@
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
-                confirmButtonText: 'Sí, borrar permanentemente',
-                cancelButtonText: 'Cancelar'
+                confirmButtonText: 'Sí, borrar permanentemente'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    remove(ref(db, 'clientes/' + curId)).then(() => {
-                        Swal.fire('Borrado', 'El cliente ha sido eliminado.', 'success').then(() => location.reload());
-                    });
+                    remove(ref(db, 'clientes/' + curId)).then(() => location.reload());
                 }
             });
-        };
-
-        window.filtrar = () => {
-            const q = document.getElementById('searchInput').value.toLowerCase();
-            document.querySelectorAll('.data-row').forEach(r => r.style.display = r.dataset.s.includes(q) ? '' : 'none');
         };
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
