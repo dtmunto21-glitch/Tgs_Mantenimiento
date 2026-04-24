@@ -8,18 +8,12 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        /* COLORES DE ESTADO RESTAURADOS */
-        :root { 
-            --vencido: #ffeded; 
-            --por-vencer: #fff9e6; 
-            --al-dia: #f2fff5; 
-        }
+        :root { --vencido: #ffeded; --por-vencer: #fff9e6; --al-dia: #f2fff5; }
         body { background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         
         .navbar { background: linear-gradient(90deg, #0d6efd 0%, #004085 100%); border-bottom: 3px solid #ffc107; }
         .card-main { border-radius: 15px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         
-        /* CLASES QUE APLICAN EL COLOR A LAS FILAS */
         .vencido { background-color: var(--vencido) !important; border-left: 6px solid #dc3545; }
         .por-vencer { background-color: var(--por-vencer) !important; border-left: 6px solid #ffc107; }
         .al-dia { background-color: var(--al-dia) !important; border-left: 6px solid #28a745; }
@@ -140,23 +134,25 @@
                 
                 let hoy = new Date();
                 let diff = (nextV - hoy) / (1000 * 60 * 60 * 24);
-                
-                // ASIGNACIÓN DE ESTADO PARA COLOR
                 let status = diff < 0 ? "vencido" : (diff <= 7 ? "por-vencer" : "al-dia");
                 if(status === "vencido") vencidos++;
 
-                const searchStr = `${c.name || ''} ${c.dni || ''} ${c.address || ''}`.toLowerCase();
+                const searchStr = `${c.name || ''} ${c.dni || ''} ${c.address || ''} ${c.district || ''}`.toLowerCase();
                 const dateKey = nextV.toISOString().substring(0, 7);
 
+                // Aquí se corrige la columna EQUIPO para mostrar toda la info
                 tbody.innerHTML += `
                     <tr class="${status} data-row" data-info="${searchStr}" data-status="${status}" data-month="${dateKey}">
                         <td class="ps-4">
-                            <strong>${(c.name || '').toUpperCase()}</strong><br>
-                            <small>${c.address || ''}</small>
+                            <strong>${(c.name || 'S/N').toUpperCase()}</strong><br>
+                            <small>${c.address || ''} ${(c.district ? '('+c.district+')' : '')}</small>
                         </td>
                         <td>${c.dni || ''}</td>
                         <td><a href="tel:${c.phone}" class="phone-link">WA: ${c.phone || ''}</a></td>
-                        <td>${e.brand || ''}</td>
+                        <td>
+                            <strong>${e.brand || ''}</strong><br>
+                            <small>${e.model || ''} - ${e.btu || ''}</small>
+                        </td>
                         <td class="fw-bold">${nextV.toLocaleDateString()}</td>
                         <td class="text-center">
                             <button class="btn btn-primary btn-sm" onclick="openM('${id}')">Ficha</button>
@@ -178,7 +174,11 @@
                 const matchSts = sts === "todos" || row.dataset.status === sts;
                 const matchMth = !mth || row.dataset.month === mth;
 
-                row.style.display = (matchTxt && matchSts && matchMth) ? '' : 'none';
+                if (matchTxt && matchSts && matchMth) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
             });
         };
 
