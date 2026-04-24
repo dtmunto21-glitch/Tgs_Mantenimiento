@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -14,22 +15,17 @@
         .navbar { background: linear-gradient(90deg, #0d6efd 0%, #004085 100%); border-bottom: 3px solid #ffc107; }
         .card-main { border-radius: 15px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         
-        /* Semáforo de Alertas en las filas */
         .vencido { background-color: var(--vencido) !important; border-left: 6px solid #dc3545; }
         .por-vencer { background-color: var(--por-vencer) !important; border-left: 6px solid #ffc107; }
         .al-dia { background-color: var(--al-dia) !important; border-left: 6px solid #28a745; }
         
         .phone-link { color: #28a745; text-decoration: none; font-weight: bold; }
-        .btn-salir { border: 1px solid rgba(255,255,255,0.5); color: white; border-radius: 20px; transition: 0.3s; }
-        .btn-salir:hover { background: rgba(255,255,255,0.2); border-color: white; }
+        .btn-salir { border: 1px solid rgba(255,255,255,0.5); color: white; border-radius: 20px; }
         
         .search-container { position: relative; }
         .search-icon { position: absolute; left: 15px; top: 12px; color: #aaa; }
-        #searchInput { padding-left: 45px; border-radius: 25px; border: 2px solid #ddd; }
-        #searchInput:focus { border-color: #0d6efd; box-shadow: none; }
-        
-        .status-select { border-radius: 25px; border: 2px solid #ddd; font-weight: 500; }
-        .status-select:focus { border-color: #0d6efd; box-shadow: none; }
+        .control-personalizado { border-radius: 25px; border: 2px solid #ddd; padding-left: 45px; }
+        .select-personalizado { border-radius: 25px; border: 2px solid #ddd; font-weight: 500; }
     </style>
 </head>
 <body>
@@ -44,29 +40,39 @@
                     <i class="bi bi-bell-fill"></i> <span id="alertCount">0</span>
                 </div>
                 <a href="registro.html" class="btn btn-success btn-sm fw-bold px-3">+ NUEVO CLIENTE</a>
-                <button onclick="salir()" class="btn btn-salir btn-sm px-3">
-                    <i class="bi bi-box-arrow-right"></i> SALIR
-                </button>
+                <button onclick="salir()" class="btn btn-salir btn-sm px-3">SALIR</button>
             </div>
         </div>
     </nav>
 
     <div class="container-fluid px-4">
         <div class="row mb-4 g-2">
-            <div class="col-md-8">
+            <div class="col-md-5">
                 <div class="search-container">
                     <i class="bi bi-search search-icon fs-5"></i>
-                    <input type="text" id="searchInput" class="form-control form-control-lg shadow-sm" 
-                    placeholder="Buscar por Nombre, DNI, Distrito o Dirección..." onkeyup="filtrar()">
+                    <input type="text" id="searchData" class="form-control form-control-lg shadow-sm control-personalizado" 
+                    placeholder="Nombre, DNI, Dirección..." onkeyup="ejecutarFiltros()">
                 </div>
             </div>
-            <div class="col-md-4">
-                <select id="statusFilter" class="form-select form-select-lg shadow-sm status-select" onchange="filtrar()">
-                    <option value="todos">🔍 Todos los estados</option>
-                    <option value="vencido">🔴 Solo Vencidos</option>
-                    <option value="por-vencer">🟡 Solo Próximos (7 días)</option>
-                    <option value="al-dia">🟢 Solo Al día</option>
+            <div class="col-md-3">
+                <select id="filterStatus" class="form-select form-select-lg shadow-sm select-personalizado" onchange="ejecutarFiltros()">
+                    <option value="todos">📊 Todos los Estados</option>
+                    <option value="vencido">🔴 Vencidos</option>
+                    <option value="por-vencer">🟡 Próximos</option>
+                    <option value="al-dia">🟢 Al día</option>
                 </select>
+            </div>
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white shadow-sm" style="border-radius: 25px 0 0 25px; border: 2px solid #ddd; border-right: none;">
+                        <i class="bi bi-calendar-event"></i>
+                    </span>
+                    <input type="month" id="filterDate" class="form-control form-control-lg shadow-sm" 
+                    style="border-radius: 0 25px 25px 0; border: 2px solid #ddd;" onchange="ejecutarFiltros()">
+                    <button class="btn btn-outline-secondary shadow-sm" onclick="limpiarFecha()" style="border-radius: 25px; margin-left: 5px;">
+                        <i class="bi bi-x-circle"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -75,7 +81,7 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-dark">
                         <tr>
-                            <th class="ps-4 py-3">CLIENTE / DIRECCIÓN</th>
+                            <th class="ps-4">CLIENTE / DIRECCIÓN</th>
                             <th>DNI / RUC</th>
                             <th>TELÉFONO</th>
                             <th>EQUIPO</th>
@@ -89,59 +95,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="hvacModal" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-                <div class="modal-header bg-primary text-white border-0 py-3">
-                    <h5 class="modal-title fw-bold"><i class="bi bi-folder-fill me-2"></i>Expediente Técnico</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <ul class="nav nav-pills mb-4 bg-light p-1 rounded-pill" id="pills-tab">
-                        <li class="nav-item flex-fill"><button class="nav-link active rounded-pill fw-bold" data-bs-toggle="pill" data-bs-target="#tab-hist">Hoja de Vida</button></li>
-                        <li class="nav-item flex-fill"><button class="nav-link rounded-pill fw-bold" data-bs-toggle="pill" data-bs-target="#tab-edit">Editar Cliente</button></li>
-                    </ul>
-                    
-                    <div class="tab-content text-dark">
-                        <div class="tab-pane fade show active" id="tab-hist">
-                            <div class="p-3 mb-4 bg-warning bg-opacity-10 border border-warning rounded">
-                                <strong class="text-dark"><i class="bi bi-chat-dots-fill me-1"></i> OBS. INICIALES:</strong> 
-                                <span id="viewObs" class="text-secondary"></span>
-                            </div>
-                            
-                            <div class="bg-light p-3 border rounded-4 mb-4">
-                                <h6 class="fw-bold mb-3 small text-muted text-uppercase">Registrar Nueva Visita</h6>
-                                <div class="row g-2">
-                                    <div class="col-md-4"><input type="date" id="hDate" class="form-control"></div>
-                                    <div class="col-md-8"><input type="text" id="hDesc" class="form-control" placeholder="¿Qué trabajo se realizó?"></div>
-                                    <div class="col-12"><button id="btnAddHist" class="btn btn-success w-100 fw-bold mt-2 shadow-sm">GUARDAR VISITA</button></div>
-                                </div>
-                            </div>
-                            
-                            <div id="histList" class="p-1"></div>
-                        </div>
-
-                        <div class="tab-pane fade" id="tab-edit">
-                            <div class="row g-3">
-                                <div class="col-md-6"><label class="small fw-bold">Nombre</label><input type="text" id="eName" class="form-control"></div>
-                                <div class="col-md-6"><label class="small fw-bold">DNI</label><input type="text" id="eDni" class="form-control"></div>
-                                <div class="col-md-6"><label class="small fw-bold">Teléfono</label><input type="text" id="ePhone" class="form-control"></div>
-                                <div class="col-md-6"><label class="small fw-bold">Distrito</label><input type="text" id="eDist" class="form-control"></div>
-                                <div class="col-12"><label class="small fw-bold">Dirección</label><input type="text" id="eAddr" class="form-control"></div>
-                                <div class="col-12"><label class="small fw-bold">Link Maps</label><input type="text" id="eMaps" class="form-control"></div>
-                                <div class="col-12"><label class="small fw-bold">Observaciones del Equipo</label><textarea id="eObsEdit" class="form-control" rows="3"></textarea></div>
-                                
-                                <div class="col-12 mt-4 pt-3 border-top d-flex gap-2">
-                                    <button id="btnUpdate" class="btn btn-primary flex-grow-1 fw-bold py-2">GUARDAR CAMBIOS</button>
-                                    <button id="btnDelete" class="btn btn-outline-danger px-3">Eliminar</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div class="modal fade" id="hvacModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content" id="modalContent"></div></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -157,155 +111,65 @@
         };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        let curId = null;
 
-        // CARGAR DATOS EN TABLA
         onValue(ref(db, 'clientes'), (snap) => {
             const data = snap.val();
             const tbody = document.getElementById('maintTable');
-            const alertBadge = document.getElementById('alertBadge');
-            const alertCount = document.getElementById('alertCount');
             tbody.innerHTML = '';
-            let countVencidos = 0;
+            let vencidos = 0;
 
             if(!data) return;
 
             for(let id in data) {
                 const c = data[id].client; const e = data[id].equipment;
                 const hist = data[id].history ? Object.values(data[id].history) : [];
-                
                 let lastV = hist.length > 0 ? hist[hist.length-1].date : e.date;
                 let nextV = new Date(lastV); nextV.setMonth(nextV.getMonth() + 3);
                 
                 let hoy = new Date();
-                let diffDias = (nextV - hoy) / (1000 * 60 * 60 * 24);
+                let diff = (nextV - hoy) / (1000 * 60 * 60 * 24);
+                let status = diff < 0 ? "vencido" : (diff <= 7 ? "por-vencer" : "al-dia");
+                if(status === "vencido") vencidos++;
 
-                let statusClass = "al-dia";
-                let textClass = "text-success";
-                if (diffDias < 0) { 
-                    statusClass = "vencido"; textClass = "text-danger"; countVencidos++;
-                } else if (diffDias <= 7) { 
-                    statusClass = "por-vencer"; textClass = "text-warning"; 
-                }
+                // Data para filtros (Texto y Fecha ISO)
+                const searchStr = `${c.name} ${c.dni} ${c.address}`.toLowerCase();
+                const dateKey = nextV.toISOString().substring(0, 7); // Formato YYYY-MM
 
-                const searchStr = `${c.name} ${c.dni} ${c.district || ''} ${c.address}`.toLowerCase();
-                
                 tbody.innerHTML += `
-                    <tr class="${statusClass} data-row" data-s="${searchStr}">
-                        <td class="ps-4">
-                            <strong>${c.name.toUpperCase()}</strong><br>
-                            <small class="text-muted">${c.address} (${c.district || '---'})</small>
-                        </td>
+                    <tr class="${status} data-row" data-info="${searchStr}" data-status="${status}" data-month="${dateKey}">
+                        <td class="ps-4"><strong>${c.name.toUpperCase()}</strong><br><small>${c.address}</small></td>
                         <td>${c.dni}</td>
-                        <td><a href="tel:${c.phone}" class="phone-link"><i class="bi bi-whatsapp"></i> ${c.phone}</a></td>
-                        <td>${e.brand}<br><small>${e.btu}</small></td>
-                        <td class="fw-bold ${textClass}">${nextV.toLocaleDateString()}</td>
-                        <td class="text-center">
-                            <button class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm" onclick="openM('${id}')">Ficha</button>
-                        </td>
+                        <td><a href="tel:${c.phone}" class="phone-link">WA: ${c.phone}</a></td>
+                        <td>${e.brand}</td>
+                        <td class="fw-bold">${nextV.toLocaleDateString()}</td>
+                        <td class="text-center"><button class="btn btn-primary btn-sm" onclick="openM('${id}')">Ficha</button></td>
                     </tr>`;
             }
-
-            if(countVencidos > 0) {
-                alertCount.innerText = countVencidos;
-                alertBadge.classList.remove('d-none');
-            } else {
-                alertBadge.classList.add('d-none');
-            }
+            document.getElementById('alertCount').innerText = vencidos;
+            document.getElementById('alertBadge').className = vencidos > 0 ? 'badge bg-danger' : 'd-none';
         });
 
-        // FILTRADO COMBINADO (TEXTO + ESTADO)
-        window.filtrar = () => {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const statusFilter = document.getElementById('statusFilter').value;
+        window.ejecutarFiltros = () => {
+            const txt = document.getElementById('searchData').value.toLowerCase();
+            const sts = document.getElementById('filterStatus').value;
+            const mth = document.getElementById('filterDate').value; // Formato YYYY-MM
             const rows = document.querySelectorAll('.data-row');
 
             rows.forEach(row => {
-                const textMatch = row.dataset.s.includes(query);
-                const statusMatch = (statusFilter === 'todos') || row.classList.contains(statusFilter);
+                const matchTxt = row.dataset.info.includes(txt);
+                const matchSts = sts === "todos" || row.dataset.status === sts;
+                const matchMth = !mth || row.dataset.month === mth;
 
-                if (textMatch && statusMatch) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+                row.style.display = (matchTxt && matchSts && matchMth) ? '' : 'none';
             });
         };
 
-        // FUNCIONES DE CONTROL
-        window.openM = (id) => {
-            curId = id;
-            onValue(ref(db, 'clientes/'+id), (s) => {
-                const v = s.val();
-                if(!v) return;
-                document.getElementById('viewObs').innerText = v.equipment.obs || "Sin observaciones";
-                document.getElementById('eName').value = v.client.name || "";
-                document.getElementById('eDni').value = v.client.dni || "";
-                document.getElementById('ePhone').value = v.client.phone || "";
-                document.getElementById('eDist').value = v.client.district || "";
-                document.getElementById('eAddr').value = v.client.address || "";
-                document.getElementById('eMaps').value = v.client.maps || "";
-                document.getElementById('eObsEdit').value = v.equipment.obs || "";
-
-                const hList = document.getElementById('histList');
-                hList.innerHTML = v.history ? Object.values(v.history).reverse().map(h => `
-                    <div class="card mb-2 border-0 bg-white shadow-sm">
-                        <div class="card-body p-2 px-3 d-flex justify-content-between">
-                            <span class="fw-bold small">${h.date}</span>
-                            <span class="small text-muted">${h.desc}</span>
-                        </div>
-                    </div>`).join('') : '<p class="text-center text-muted">Sin visitas registradas.</p>';
-                
-                new bootstrap.Modal(document.getElementById('hvacModal')).show();
-            }, {onlyOnce: true});
+        window.limpiarFecha = () => {
+            document.getElementById('filterDate').value = '';
+            ejecutarFiltros();
         };
 
-        window.salir = () => {
-            Swal.fire({
-                title: '¿Cerrar sesión?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Sí, salir'
-            }).then((r) => { if(r.isConfirmed) window.location.href = "index.html"; });
-        };
-
-        document.getElementById('btnAddHist').onclick = () => {
-            const date = document.getElementById('hDate').value;
-            const desc = document.getElementById('hDesc').value;
-            if(date && desc) {
-                push(ref(db, `clientes/${curId}/history`), {date, desc}).then(() => {
-                    Swal.fire('Guardado', 'Visita registrada correctamente', 'success').then(() => location.reload());
-                });
-            } else {
-                Swal.fire('Error', 'Completa fecha y descripción', 'error');
-            }
-        };
-
-        document.getElementById('btnUpdate').onclick = () => {
-            const up = {};
-            up[`clientes/${curId}/client/name`] = document.getElementById('eName').value;
-            up[`clientes/${curId}/client/dni`] = document.getElementById('eDni').value;
-            up[`clientes/${curId}/client/phone`] = document.getElementById('ePhone').value;
-            up[`clientes/${curId}/client/district`] = document.getElementById('eDist').value;
-            up[`clientes/${curId}/client/address`] = document.getElementById('eAddr').value;
-            up[`clientes/${curId}/client/maps`] = document.getElementById('eMaps').value;
-            up[`clientes/${curId}/equipment/obs`] = document.getElementById('eObsEdit').value;
-            update(ref(db), up).then(() => {
-                Swal.fire('Actualizado', 'Datos del cliente actualizados', 'success').then(() => location.reload());
-            });
-        };
-
-        document.getElementById('btnDelete').onclick = () => {
-            Swal.fire({
-                title: '¿Eliminar cliente?',
-                text: "Se borrará todo permanentemente",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                confirmButtonText: 'Borrar'
-            }).then((r) => { if(r.isConfirmed) remove(ref(db, 'clientes/'+curId)).then(() => location.reload()); });
-        };
+        window.salir = () => window.location.href = "index.html";
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
