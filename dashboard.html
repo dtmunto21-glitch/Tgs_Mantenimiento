@@ -10,21 +10,17 @@
     <style>
         :root { --vencido: #ffeded; --por-vencer: #fff9e6; --al-dia: #f2fff5; }
         body { background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        
         .navbar { background: linear-gradient(90deg, #0d6efd 0%, #004085 100%); border-bottom: 3px solid #ffc107; }
         .card-main { border-radius: 15px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        
         .vencido { background-color: var(--vencido) !important; border-left: 6px solid #dc3545; }
         .por-vencer { background-color: var(--por-vencer) !important; border-left: 6px solid #ffc107; }
         .al-dia { background-color: var(--al-dia) !important; border-left: 6px solid #28a745; }
-        
         .phone-link { color: #28a745; text-decoration: none; font-weight: bold; }
         .btn-salir { border: 1px solid rgba(255,255,255,0.5); color: white; border-radius: 20px; }
-        
-        .search-container { position: relative; }
-        .search-icon { position: absolute; left: 15px; top: 12px; color: #aaa; }
         .control-personalizado { border-radius: 25px; border: 2px solid #ddd; padding-left: 45px; }
         .select-personalizado { border-radius: 25px; border: 2px solid #ddd; font-weight: 500; }
+        .search-container { position: relative; }
+        .search-icon { position: absolute; left: 15px; top: 12px; color: #aaa; }
     </style>
 </head>
 <body>
@@ -49,8 +45,7 @@
             <div class="col-md-5">
                 <div class="search-container">
                     <i class="bi bi-search search-icon fs-5"></i>
-                    <input type="text" id="searchData" class="form-control form-control-lg shadow-sm control-personalizado" 
-                    placeholder="Nombre, DNI, Dirección..." onkeyup="ejecutarFiltros()">
+                    <input type="text" id="searchData" class="form-control form-control-lg shadow-sm control-personalizado" placeholder="Buscar..." onkeyup="ejecutarFiltros()">
                 </div>
             </div>
             <div class="col-md-3">
@@ -63,14 +58,8 @@
             </div>
             <div class="col-md-4">
                 <div class="input-group">
-                    <span class="input-group-text bg-white shadow-sm" style="border-radius: 25px 0 0 25px; border: 2px solid #ddd; border-right: none;">
-                        <i class="bi bi-calendar-event"></i>
-                    </span>
-                    <input type="month" id="filterDate" class="form-control form-control-lg shadow-sm" 
-                    style="border-radius: 0 25px 25px 0; border: 2px solid #ddd;" onchange="ejecutarFiltros()">
-                    <button class="btn btn-outline-secondary shadow-sm" onclick="limpiarFecha()" style="border-radius: 25px; margin-left: 5px;">
-                        <i class="bi bi-x-circle"></i>
-                    </button>
+                    <input type="month" id="filterDate" class="form-control form-control-lg shadow-sm" style="border-radius: 25px 0 0 25px; border: 2px solid #ddd;" onchange="ejecutarFiltros()">
+                    <button class="btn btn-outline-secondary shadow-sm" onclick="limpiarFecha()" style="border-radius: 0 25px 25px 0;"><i class="bi bi-x-circle"></i></button>
                 </div>
             </div>
         </div>
@@ -83,7 +72,7 @@
                             <th class="ps-4">CLIENTE / DIRECCIÓN</th>
                             <th>DNI / RUC</th>
                             <th>TELÉFONO</th>
-                            <th>EQUIPO</th>
+                            <th>EQUIPO (MARCA/MOD/BTU)</th>
                             <th>PRÓXIMO MANTO.</th>
                             <th class="text-center">ACCIÓN</th>
                         </tr>
@@ -96,21 +85,14 @@
 
     <div class="modal fade" id="hvacModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content" style="border-radius: 15px;">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title"><i class="bi bi-person-circle"></i> Ficha del Cliente</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body" id="modalContent">
-                    </div>
-            </div>
+            <div class="modal-content" id="modalContent" style="border-radius:15px;"></div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, update, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-        
+        import { getDatabase, ref, onValue, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
         const firebaseConfig = { 
             apiKey: "AIzaSyBHtfZP6tlFJ-Uh4KZfsl_S8ItINDub1Jo", 
             authDomain: "aa-control-mantenimiento.firebaseapp.com", 
@@ -122,11 +104,11 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- GLOBALIZAR FUNCIONES ---
+        // Hacer las funciones accesibles para los botones
         window.salir = () => window.location.href = "index.html";
         window.limpiarFecha = () => { document.getElementById('filterDate').value = ''; ejecutarFiltros(); };
 
-        // --- CARGAR TABLA ---
+        // Cargar Tabla
         onValue(ref(db, 'clientes'), (snap) => {
             const data = snap.val();
             const tbody = document.getElementById('maintTable');
@@ -140,101 +122,83 @@
                 const hist = data[id].history ? Object.values(data[id].history) : [];
                 
                 let lastV = hist.length > 0 ? hist[hist.length-1].date : e.date;
-                let nextV = new Date(lastV); 
-                nextV.setMonth(nextV.getMonth() + 3);
+                let nextV = new Date(lastV); nextV.setMonth(nextV.getMonth() + 3);
                 
-                let hoy = new Date();
-                let diff = (nextV - hoy) / (1000 * 60 * 60 * 24);
-                let status = diff < 0 ? "vencido" : (diff <= 7 ? "por-vencer" : "al-dia");
+                let status = ((nextV - new Date()) / 86400000) < 0 ? "vencido" : (((nextV - new Date()) / 86400000) <= 7 ? "por-vencer" : "al-dia");
                 if(status === "vencido") vencidos++;
 
-                const searchStr = `${c.name || ''} ${c.dni || ''} ${c.address || ''}`.toLowerCase();
+                const searchStr = `${c.name} ${c.dni} ${c.address}`.toLowerCase();
                 const dateKey = nextV.toISOString().substring(0, 7);
 
                 tbody.innerHTML += `
                     <tr class="${status} data-row" data-info="${searchStr}" data-status="${status}" data-month="${dateKey}">
-                        <td class="ps-4">
-                            <strong>${(c.name || 'S/N').toUpperCase()}</strong><br>
-                            <small>${c.address || ''}</small>
-                        </td>
-                        <td>${c.dni || ''}</td>
-                        <td><a href="tel:${c.phone}" class="phone-link">WA: ${c.phone || ''}</a></td>
-                        <td>
-                            <strong>${e.brand || ''}</strong><br>
-                            <small>${e.model || ''} - ${e.btu || ''}</small>
-                        </td>
+                        <td class="ps-4"><strong>${c.name.toUpperCase()}</strong><br><small>${c.address}</small></td>
+                        <td>${c.dni}</td>
+                        <td><a href="tel:${c.phone}" class="phone-link">WA: ${c.phone}</a></td>
+                        <td><strong>${e.brand}</strong><br><small>${e.model || ''} - ${e.btu || ''}</small></td>
                         <td class="fw-bold">${nextV.toLocaleDateString()}</td>
-                        <td class="text-center">
-                            <button class="btn btn-primary btn-sm" onclick="openM('${id}')">Ficha</button>
-                        </td>
+                        <td class="text-center"><button class="btn btn-primary btn-sm" onclick="openM('${id}')">Ficha</button></td>
                     </tr>`;
             }
             document.getElementById('alertCount').innerText = vencidos;
             document.getElementById('alertBadge').className = vencidos > 0 ? 'badge bg-danger' : 'd-none';
         });
 
-        // --- FILTROS ---
-        window.ejecutarFiltros = () => {
-            const txt = document.getElementById('searchData').value.toLowerCase();
-            const sts = document.getElementById('filterStatus').value;
-            const mth = document.getElementById('filterDate').value; 
-            document.querySelectorAll('.data-row').forEach(row => {
-                const matchTxt = row.dataset.info.includes(txt);
-                const matchSts = sts === "todos" || row.dataset.status === sts;
-                const matchMth = !mth || row.dataset.month === mth;
-                row.style.display = (matchTxt && matchSts && matchMth) ? '' : 'none';
+        // Lógica Global de Ficha
+        window.openM = (id) => {
+            onValue(ref(db, `clientes/${id}`), (s) => {
+                const v = s.val(); if(!v) return;
+                const hist = v.history ? Object.values(v.history).reverse() : [];
+                document.getElementById('modalContent').innerHTML = `
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">Ficha: ${v.client.name.toUpperCase()}</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6 border-end">
+                                <h6><strong>EQUIPO</strong></h6>
+                                <p><strong>Marca/Mod:</strong> ${v.equipment.brand} ${v.equipment.model || ''}<br>
+                                <strong>Capacidad:</strong> ${v.equipment.btu}<br>
+                                <strong>Observaciones:</strong> ${v.equipment.obs || 'Ninguna'}</p>
+                                <hr>
+                                <h6><strong>CLIENTE</strong></h6>
+                                <p class="small"><strong>DNI:</strong> ${v.client.dni}<br><strong>Tel:</strong> ${v.client.phone}<br><strong>Dir:</strong> ${v.client.address}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><strong>HISTORIAL / NUEVA VISITA</strong></h6>
+                                <div class="bg-light p-2 mb-2 rounded small" style="max-height:150px; overflow-y:auto;">
+                                    ${hist.map(h => `<div>• <b>${h.date}:</b> ${h.desc}</div>`).join('') || 'Sin historial'}
+                                </div>
+                                <input type="date" id="nVDate" class="form-control form-control-sm mb-1">
+                                <input type="text" id="nVDesc" class="form-control form-control-sm mb-1" placeholder="Qué se hizo...">
+                                <button class="btn btn-success btn-sm w-100" onclick="registrarV('${id}')">Guardar Visita</button>
+                            </div>
+                        </div>
+                    </div>`;
+                new bootstrap.Modal(document.getElementById('hvacModal')).show();
+            }, {onlyOnce: true});
+        };
+
+        window.registrarV = (id) => {
+            const date = document.getElementById('nVDate').value;
+            const desc = document.getElementById('nVDesc').value;
+            if(!date || !desc) return Swal.fire('Aviso', 'Completa los campos', 'warning');
+            push(ref(db, `clientes/${id}/history`), {date, desc}).then(() => {
+                Swal.fire('Listo', 'Visita registrada', 'success');
+                bootstrap.Modal.getInstance(document.getElementById('hvacModal')).hide();
             });
         };
 
-        // --- FUNCIÓN ABRIR FICHA (ARREGLADA) ---
-        window.openM = (id) => {
-            onValue(ref(db, `clientes/${id}`), (snap) => {
-                const val = snap.val();
-                if(!val) return;
-                const c = val.client;
-                const e = val.equipment;
-                const hist = val.history ? Object.values(val.history).reverse() : [];
-
-                document.getElementById('modalContent').innerHTML = `
-                    <div class="row">
-                        <div class="col-md-6 border-end">
-                            <h6><strong>Datos del Cliente</strong></h6>
-                            <p class="mb-1"><strong>Nombre:</strong> ${c.name}</p>
-                            <p class="mb-1"><strong>Dirección:</strong> ${c.address}</p>
-                            <p class="mb-1"><strong>DNI:</strong> ${c.dni}</p>
-                            <p><strong>Tel:</strong> ${c.phone}</p>
-                            <hr>
-                            <h6><strong>Datos del Equipo</strong></h6>
-                            <p class="mb-1"><strong>Marca:</strong> ${e.brand}</p>
-                            <p class="mb-1"><strong>Modelo:</strong> ${e.model || 'N/A'}</p>
-                            <p class="mb-1"><strong>Capacidad:</strong> ${e.btu}</p>
-                            <p class="text-muted small"><strong>Obs:</strong> ${e.obs || 'Sin observaciones'}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h6><strong>Historial de Visitas</strong></h6>
-                            <div style="max-height: 200px; overflow-y: auto;" class="mb-3">
-                                ${hist.map(h => `<div class="alert alert-light p-2 mb-1 border small"><strong>${h.date}:</strong> ${h.desc}</div>`).join('')}
-                            </div>
-                            <div class="bg-light p-2 rounded">
-                                <label class="small fw-bold">Agregar Nueva Visita:</label>
-                                <input type="date" id="newDate" class="form-control form-control-sm mb-1">
-                                <input type="text" id="newDesc" class="form-control form-control-sm mb-1" placeholder="Descripción...">
-                                <button class="btn btn-success btn-sm w-100" onclick="guardarVisita('${id}')">Registrar</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                new bootstrap.Modal(document.getElementById('hvacModal')).show();
-            }, { onlyOnce: true });
-        };
-
-        window.guardarVisita = (id) => {
-            const date = document.getElementById('newDate').value;
-            const desc = document.getElementById('newDesc').value;
-            if(!date || !desc) return Swal.fire('Error', 'Completa los campos', 'error');
-            push(ref(db, `clientes/${id}/history`), { date, desc }).then(() => {
-                Swal.fire('Guardado', 'Visita registrada', 'success');
-                bootstrap.Modal.getInstance(document.getElementById('hvacModal')).hide();
+        window.ejecutarFiltros = () => {
+            const txt = document.getElementById('searchData').value.toLowerCase();
+            const sts = document.getElementById('filterStatus').value;
+            const mth = document.getElementById('filterDate').value;
+            document.querySelectorAll('.data-row').forEach(row => {
+                const mTxt = row.dataset.info.includes(txt);
+                const mSts = sts === "todos" || row.dataset.status === sts;
+                const mMth = !mth || row.dataset.month === mth;
+                row.style.display = (mTxt && mSts && mMth) ? '' : 'none';
             });
         };
     </script>
