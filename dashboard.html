@@ -181,16 +181,16 @@
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-6 border-end">
-                                <h6><strong>EQUIPO</strong></h6>
+                                <h6><strong>Informacion del Equipo</strong></h6>
                                 <p><strong>Marca/Mod:</strong> ${v.equipment.brand} ${v.equipment.model || ''}<br>
                                 <strong>Capacidad:</strong> ${v.equipment.btu}<br>
                                 <strong>Observaciones:</strong> ${v.equipment.obs || 'Ninguna'}</p>
                                 <hr>
-                                <h6><strong>CLIENTE</strong></h6>
+                                <h6><strong>Informacion del CLIENTE</strong></h6>
                                 <p class="small"><strong>DNI:</strong> ${v.client.dni}<br><strong>Tel:</strong> ${v.client.phone}<br><strong>Dir:</strong> ${v.client.address}</p>
                             </div>
                             <div class="col-md-6">
-                                <h6><strong>HISTORIAL / NUEVA VISITA</strong></h6>
+                                <h6><strong>HISTORIAL DE MANTENIMIENTO</strong></h6>
                                 <div class="bg-light p-2 mb-2 rounded small" style="max-height:150px; overflow-y:auto;">
                                     ${hist.map(h => `<div>• <b>${h.date}:</b> ${h.desc}</div>`).join('') || 'Sin historial'}
                                 </div>
