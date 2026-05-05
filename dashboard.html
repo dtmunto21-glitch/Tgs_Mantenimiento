@@ -83,6 +83,7 @@
         </div>
     </div>
 
+    <!-- MODAL DE FICHA -->
     <div class="modal fade" id="hvacModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content" id="modalContent" style="border-radius:15px;"></div>
@@ -91,7 +92,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = { 
             apiKey: "AIzaSyBHtfZP6tlFJ-Uh4KZfsl_S8ItINDub1Jo", 
@@ -168,7 +169,7 @@
             });
         };
 
-        // --- ABRIR FICHA ---
+        // --- ABRIR FICHA Y EDITAR ---
         window.openM = (id) => {
             onValue(ref(db, `clientes/${id}`), (s) => {
                 const v = s.val(); if(!v) return;
@@ -181,13 +182,41 @@
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-6 border-end">
-                                <h6><strong>Informacion del Equipo</strong></h6>
-                                <p><strong>Marca/Mod:</strong> ${v.equipment.brand} ${v.equipment.model || ''}<br>
-                                <strong>Capacidad:</strong> ${v.equipment.btu}<br>
-                                <strong>Observaciones:</strong> ${v.equipment.obs || 'Ninguna'}</p>
-                                <hr>
-                                <h6><strong>Informacion del CLIENTE</strong></h6>
-                                <p class="small"><strong>DNI:</strong> ${v.client.dni}<br><strong>Tel:</strong> ${v.client.phone}<br><strong>Dir:</strong> ${v.client.address}</p>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6><strong>Datos Generales</strong></h6>
+                                    <button class="btn btn-outline-primary btn-sm" onclick="habilitarEdicion()">
+                                        <i class="bi bi-pencil"></i> Editar
+                                    </button>
+                                </div>
+                                
+                                <div id="viewMode">
+                                    <p><strong>Marca/Mod:</strong> ${v.equipment.brand} ${v.equipment.model || ''}<br>
+                                    <strong>Capacidad:</strong> ${v.equipment.btu}<br>
+                                    <strong>DNI/RUC:</strong> ${v.client.dni}<br>
+                                    <strong>Tel:</strong> ${v.client.phone}<br>
+                                    <strong>Dir:</strong> ${v.client.address}<br>
+                                    <strong>Obs:</strong> ${v.equipment.obs || 'Ninguna'}</p>
+                                </div>
+
+                                <div id="editMode" class="d-none">
+                                    <label class="small fw-bold">Nombre Cliente:</label>
+                                    <input type="text" id="editName" class="form-control form-control-sm mb-1" value="${v.client.name}">
+                                    <label class="small fw-bold">Marca:</label>
+                                    <input type="text" id="editBrand" class="form-control form-control-sm mb-1" value="${v.equipment.brand}">
+                                    <label class="small fw-bold">Modelo:</label>
+                                    <input type="text" id="editModel" class="form-control form-control-sm mb-1" value="${v.equipment.model || ''}">
+                                    <label class="small fw-bold">Capacidad:</label>
+                                    <input type="text" id="editBtu" class="form-control form-control-sm mb-1" value="${v.equipment.btu}">
+                                    <label class="small fw-bold">DNI/RUC:</label>
+                                    <input type="text" id="editDni" class="form-control form-control-sm mb-1" value="${v.client.dni}">
+                                    <label class="small fw-bold">Teléfono:</label>
+                                    <input type="text" id="editPhone" class="form-control form-control-sm mb-1" value="${v.client.phone}">
+                                    <label class="small fw-bold">Dirección:</label>
+                                    <input type="text" id="editAddress" class="form-control form-control-sm mb-1" value="${v.client.address}">
+                                    <label class="small fw-bold">Observaciones:</label>
+                                    <textarea id="editObs" class="form-control form-control-sm mb-2">${v.equipment.obs || ''}</textarea>
+                                    <button class="btn btn-primary btn-sm w-100" onclick="guardarEdicion('${id}')">Guardar Cambios</button>
+                                </div>
                             </div>
                             <div class="col-md-6">
                                 <h6><strong>HISTORIAL DE MANTENIMIENTO</strong></h6>
@@ -202,6 +231,28 @@
                     </div>`;
                 new bootstrap.Modal(document.getElementById('hvacModal')).show();
             }, {onlyOnce: true});
+        };
+
+        window.habilitarEdicion = () => {
+            document.getElementById('viewMode').classList.add('d-none');
+            document.getElementById('editMode').classList.remove('d-none');
+        };
+
+        window.guardarEdicion = (id) => {
+            const updates = {};
+            updates[`clientes/${id}/client/name`] = document.getElementById('editName').value;
+            updates[`clientes/${id}/client/dni`] = document.getElementById('editDni').value;
+            updates[`clientes/${id}/client/phone`] = document.getElementById('editPhone').value;
+            updates[`clientes/${id}/client/address`] = document.getElementById('editAddress').value;
+            updates[`clientes/${id}/equipment/brand`] = document.getElementById('editBrand').value;
+            updates[`clientes/${id}/equipment/model`] = document.getElementById('editModel').value;
+            updates[`clientes/${id}/equipment/btu`] = document.getElementById('editBtu').value;
+            updates[`clientes/${id}/equipment/obs`] = document.getElementById('editObs').value;
+
+            update(ref(db), updates).then(() => {
+                Swal.fire('Listo', 'Datos actualizados', 'success');
+                bootstrap.Modal.getInstance(document.getElementById('hvacModal')).hide();
+            });
         };
 
         window.registrarV = (id) => {
