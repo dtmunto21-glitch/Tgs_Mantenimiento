@@ -169,63 +169,94 @@
             });
         };
 
-        // --- ABRIR FICHA Y EDITAR ---
+        // --- ABRIR FICHA (DISEÑO MEJORADO) ---
         window.openM = (id) => {
             onValue(ref(db, `clientes/${id}`), (s) => {
                 const v = s.val(); if(!v) return;
                 const hist = v.history ? Object.values(v.history).reverse() : [];
+                
                 document.getElementById('modalContent').innerHTML = `
-                    <div class="modal-header bg-primary text-white">
-                        <h5 class="modal-title">Ficha: ${v.client.name.toUpperCase()}</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-bold text-primary"><i class="bi bi-person-vcard me-2"></i>FICHA TÉCNICA</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6 border-end">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h6><strong>Datos Generales</strong></h6>
-                                    <button class="btn btn-outline-primary btn-sm" onclick="habilitarEdicion()">
-                                        <i class="bi bi-pencil"></i> Editar
-                                    </button>
-                                </div>
-                                
-                                <div id="viewMode">
-                                    <p><strong>Marca/Mod:</strong> ${v.equipment.brand} ${v.equipment.model || ''}<br>
-                                    <strong>Capacidad:</strong> ${v.equipment.btu}<br>
-                                    <strong>DNI/RUC:</strong> ${v.client.dni}<br>
-                                    <strong>Tel:</strong> ${v.client.phone}<br>
-                                    <strong>Dir:</strong> ${v.client.address}<br>
-                                    <strong>Obs:</strong> ${v.equipment.obs || 'Ninguna'}</p>
-                                </div>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 bg-light p-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="mb-0 fw-bold text-secondary">DATOS GENERALES</h6>
+                                        <button class="btn btn-dark btn-sm rounded-pill px-3" onclick="habilitarEdicion()">
+                                            <i class="bi bi-pencil-square"></i> Editar
+                                        </button>
+                                    </div>
+                                    
+                                    <div id="viewMode">
+                                        <div class="mb-3">
+                                            <span class="badge bg-primary mb-1">Cliente</span>
+                                            <p class="mb-0 fw-bold text-uppercase">${v.client.name}</p>
+                                            <small class="text-muted"><i class="bi bi-geo-alt"></i> ${v.client.address}</small>
+                                        </div>
+                                        <div class="row g-2 mb-3">
+                                            <div class="col-6">
+                                                <small class="text-muted d-block">DNI/RUC</small>
+                                                <span class="fw-medium">${v.client.dni}</span>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-muted d-block">Teléfono</small>
+                                                <span class="fw-medium">${v.client.phone}</span>
+                                            </div>
+                                        </div>
+                                        <div class="p-2 bg-white rounded border-start border-4 border-primary">
+                                            <small class="text-muted d-block">Equipo</small>
+                                            <span class="fw-bold text-primary">${v.equipment.brand}</span> | 
+                                            <span>${v.equipment.model || 'N/A'}</span><br>
+                                            <small>Capacidad: <strong>${v.equipment.btu}</strong></small> | 
+                                            <small>Gas: <strong class="text-danger">${v.equipment.gasType || v.equipment.gas || 'No reg.'}</strong></small>
+                                        </div>
+                                        <div class="mt-3">
+                                            <small class="text-muted d-block">Observaciones:</small>
+                                            <p class="small italic text-secondary">${v.equipment.obs || 'Sin observaciones'}</p>
+                                        </div>
+                                    </div>
 
-                                <div id="editMode" class="d-none">
-                                    <label class="small fw-bold">Nombre Cliente:</label>
-                                    <input type="text" id="editName" class="form-control form-control-sm mb-1" value="${v.client.name}">
-                                    <label class="small fw-bold">Marca:</label>
-                                    <input type="text" id="editBrand" class="form-control form-control-sm mb-1" value="${v.equipment.brand}">
-                                    <label class="small fw-bold">Modelo:</label>
-                                    <input type="text" id="editModel" class="form-control form-control-sm mb-1" value="${v.equipment.model || ''}">
-                                    <label class="small fw-bold">Capacidad:</label>
-                                    <input type="text" id="editBtu" class="form-control form-control-sm mb-1" value="${v.equipment.btu}">
-                                    <label class="small fw-bold">DNI/RUC:</label>
-                                    <input type="text" id="editDni" class="form-control form-control-sm mb-1" value="${v.client.dni}">
-                                    <label class="small fw-bold">Teléfono:</label>
-                                    <input type="text" id="editPhone" class="form-control form-control-sm mb-1" value="${v.client.phone}">
-                                    <label class="small fw-bold">Dirección:</label>
-                                    <input type="text" id="editAddress" class="form-control form-control-sm mb-1" value="${v.client.address}">
-                                    <label class="small fw-bold">Observaciones:</label>
-                                    <textarea id="editObs" class="form-control form-control-sm mb-2">${v.equipment.obs || ''}</textarea>
-                                    <button class="btn btn-primary btn-sm w-100" onclick="guardarEdicion('${id}')">Guardar Cambios</button>
+                                    <div id="editMode" class="d-none">
+                                        <input type="text" id="editName" class="form-control form-control-sm mb-2" value="${v.client.name}">
+                                        <div class="row g-2">
+                                            <div class="col-6"><input type="text" id="editDni" class="form-control form-control-sm mb-2" value="${v.client.dni}"></div>
+                                            <div class="col-6"><input type="text" id="editPhone" class="form-control form-control-sm mb-2" value="${v.client.phone}"></div>
+                                        </div>
+                                        <input type="text" id="editAddress" class="form-control form-control-sm mb-2" value="${v.client.address}">
+                                        <hr class="my-2">
+                                        <div class="row g-2">
+                                            <div class="col-6"><input type="text" id="editBrand" class="form-control form-control-sm mb-2" value="${v.equipment.brand}"></div>
+                                            <div class="col-6"><input type="text" id="editModel" class="form-control form-control-sm mb-2" value="${v.equipment.model || ''}"></div>
+                                            <div class="col-6"><input type="text" id="editBtu" class="form-control form-control-sm mb-2" value="${v.equipment.btu}"></div>
+                                            <div class="col-6"><input type="text" id="editGas" class="form-control form-control-sm mb-2 text-danger fw-bold" value="${v.equipment.gasType || v.equipment.gas || ''}"></div>
+                                        </div>
+                                        <textarea id="editObs" class="form-control form-control-sm mb-2">${v.equipment.obs || ''}</textarea>
+                                        <button class="btn btn-primary btn-sm w-100" onclick="guardarEdicion('${id}')">Guardar Cambios</button>
+                                    </div>
                                 </div>
                             </div>
+
                             <div class="col-md-6">
-                                <h6><strong>HISTORIAL DE MANTENIMIENTO</strong></h6>
-                                <div class="bg-light p-2 mb-2 rounded small" style="max-height:150px; overflow-y:auto;">
-                                    ${hist.map(h => `<div>• <b>${h.date}:</b> ${h.desc}</div>`).join('') || 'Sin historial'}
+                                <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-clock-history me-2"></i>HISTORIAL</h6>
+                                <div class="bg-white p-2 border rounded mb-3" style="max-height:220px; overflow-y:auto; font-size: 0.85rem;">
+                                    ${hist.length > 0 ? hist.map(h => `
+                                        <div class="border-bottom py-2">
+                                            <span class="badge bg-secondary">${h.date}</span>
+                                            <p class="mb-0 mt-1">${h.desc}</p>
+                                        </div>
+                                    `).join('') : '<div class="text-center text-muted py-4">Sin historial</div>'}
                                 </div>
-                                <input type="date" id="nVDate" class="form-control form-control-sm mb-1">
-                                <input type="text" id="nVDesc" class="form-control form-control-sm mb-1" placeholder="Qué se hizo...">
-                                <button class="btn btn-success btn-sm w-100" onclick="registrarV('${id}')">Guardar Visita</button>
+                                
+                                <div class="p-3 bg-success bg-opacity-10 rounded border border-success border-opacity-25">
+                                    <h6 class="small fw-bold text-success mb-2">REGISTRAR VISITA</h6>
+                                    <input type="date" id="nVDate" class="form-control form-control-sm mb-2">
+                                    <input type="text" id="nVDesc" class="form-control form-control-sm mb-2" placeholder="Trabajo realizado...">
+                                    <button class="btn btn-success btn-sm w-100" onclick="registrarV('${id}')">Guardar Mantenimiento</button>
+                                </div>
                             </div>
                         </div>
                     </div>`;
@@ -247,6 +278,7 @@
             updates[`clientes/${id}/equipment/brand`] = document.getElementById('editBrand').value;
             updates[`clientes/${id}/equipment/model`] = document.getElementById('editModel').value;
             updates[`clientes/${id}/equipment/btu`] = document.getElementById('editBtu').value;
+            updates[`clientes/${id}/equipment/gasType`] = document.getElementById('editGas').value;
             updates[`clientes/${id}/equipment/obs`] = document.getElementById('editObs').value;
 
             update(ref(db), updates).then(() => {
